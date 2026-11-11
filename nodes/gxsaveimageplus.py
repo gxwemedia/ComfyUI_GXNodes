@@ -24,17 +24,9 @@ def _join_prefix(*parts):
 class GXSaveImagePlus(io.ComfyNode):
     @classmethod
     def load_config(cls):
-        """加载配置文件"""
-        try:
-            config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config.json")
-            with open(config_path, "r", encoding="utf-8") as handle:
-                config = json.load(handle)
-            names = config.get("subfolder_names")
-            if isinstance(names, list) and names and all(isinstance(name, str) for name in names):
-                return names
-        except (OSError, ValueError) as error:
-            print(f"加载配置文件失败: {error}")
-        return ["None"]
+        from .gxsavepathcombiner import load_config
+
+        return load_config()
 
     @classmethod
     def define_schema(cls):

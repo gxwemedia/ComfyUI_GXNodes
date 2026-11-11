@@ -1,66 +1,93 @@
 # GXNodes
 
-Custom nodes for ComfyUI, with LLM workflows, LAN shared compute, Topaz Video AI processing, and image/video saving utilities.
+ComfyUI custom nodes for **LAN discovery and shared compute**, **local Topaz Video AI**, LLM workflows, and named media exports.
 
-[中文说明](README.zh-CN.md)
+[中文指南](README.zh-CN.md) · [Comfy Registry](https://registry.comfy.org/nodes/gxnodes) · [GitHub v0.1.1](https://github.com/gxwemedia/ComfyUI_GXNodes/releases/tag/v0.1.1)
 
-## Installation
+| Release | Registry package | ComfyUI | Python |
+| --- | --- | --- | --- |
+| `0.1.1` | `gxnodes` | `0.44.2+` | `3.11+` |
 
-Requires ComfyUI 0.44.2 or later and Python 3.11 or later. GXNodes uses the ComfyUI V3 node API. ComfyUI supplies media dependencies, and the LLM nodes additionally use the OpenAI Python SDK and HTTPX2.
+## Install and start
 
-From your ComfyUI directory, run the following command, then restart ComfyUI and refresh the browser.
+**ComfyUI Manager** — Search for **GXNodes** or `gxnodes`, install it, then restart ComfyUI and refresh the browser. The package page shows the current Registry status.
+
+**Git** — Run these commands from the ComfyUI directory. Use the Python interpreter that launches your ComfyUI instance to install the dependencies.
 
 ```bash
-git clone https://github.com/gxwemedia/ComfyUI_GXNodes.git custom_nodes/ComfyUI_GXNodes
-python -m pip install -r custom_nodes/ComfyUI_GXNodes/requirements.txt
+git clone --branch v0.1.1 https://github.com/gxwemedia/ComfyUI_GXNodes.git custom_nodes/gxnodes
+python -m pip install -r custom_nodes/gxnodes/requirements.txt
 ```
 
-Run the installation command with the Python interpreter used by your ComfyUI instance.
+Restart ComfyUI. Search the node menu for **GXNodes**. The save and utility nodes work with the built-in defaults. Topaz, model API calls, and ComfyPilot each use their own local installation or service configuration.
 
-Registry package ID is `gxnodes`. Registry availability is shown on the [package page](https://registry.comfy.org/nodes/gxnodes).
+## Configure with JSON
 
-## Features
+Use **Settings → GXNodes** or edit the same settings file directly. The directory below is relative to the ComfyUI installation. If you pass `--user-directory`, use that directory in place of `user/`.
 
-### LLM workflows
+| Template in the node package | Destination in ComfyUI | Purpose |
+| --- | --- | --- |
+| [settings.json.example](settings.json.example) | `user/GXNodes/settings.json` | Topaz, shared compute, retention, and ComfyPilot |
+| [save-folders.json.example](save-folders.json.example) | `user/GXNodes/save-folders.json` | Folder presets for Save Image Plus and the Save Path nodes |
 
-Connect `GX API Config` to `GX Generation Config`, then connect its request configuration to `GX LLM Chat Completions`. Configure an OpenAI Chat Completions-compatible service and model. Optional image/video inputs and `GX Skill Config` supply visual context and local skill text.
+Create `user/GXNodes/`, copy each template to the destination name without `.example`, and edit the UTF-8 JSON. Keep existing files and merge only the fields you want to change. Restart ComfyUI after hand-editing configuration so node availability and the settings panel reload together. The templates ship with an empty shared token and an empty executable override.
 
-API credentials are referenced through environment variables. For custom providers, use `GX_LLM_<NAME>_KEY` and set `GX_LLM_<NAME>_BASE_URL` to the same base URL as the node. DSH integration reads an existing local `.comfypilot/dsh` configuration. Requests send prompts and selected context to the configured provider, which may charge for usage.
+| Key in `settings.json` | Default | How to use it |
+| --- | --- | --- |
+| `enable_shared_compute` | `true` | Enables the shared-compute sidebar and discovery. |
+| `allow_incoming_shared` | `true` | Allows new shared tasks. Set `false` on a machine that should only submit tasks. |
+| `shared_token` | `""` | Set the same value on participating instances when access validation is needed. `GX_SHARED_TOKEN` takes precedence. |
+| `transfer_retention_hours` | `24` | Hours to retain transferred copies. `0` keeps them indefinitely. |
+| `result_retention_days` | `0` | Days to retain shared results. `0` keeps them indefinitely. |
+| `topaz_ffmpeg_path` | `""` | Absolute local path to Topaz `ffmpeg.exe`. Empty uses detection. |
+| `enable_comfypilot` | `true` | Shows the optional enterprise integration nodes. |
+| `comfypilot_url` | `http://127.0.0.1:39112` | Address of a separately installed ComfyPilot service. |
+| `allow_remote_comfypilot` | `false` | Enable only when you intend to use a non-loopback service address. |
 
-### LAN shared compute
+For Windows paths in JSON, use forward slashes or escape each backslash. For example, a typical value is `C:/Program Files/Topaz Labs LLC/Topaz Video AI/ffmpeg.exe`. Use the actual location on your machine. To customize save presets, edit the `subfolder_names` list in `save-folders.json`, using one folder name per entry. If you previously customized `nodes/config.json`, copy its `subfolder_names` list to the new user configuration before upgrading.
 
-Open the Shared Compute sidebar, select an instance, review its requirements and the assets to transfer, then submit the workflow. Completed results can be loaded from the task list.
+## Use the nodes
 
-Use trusted networks. Discovery does not authenticate devices and LAN HTTP traffic is unencrypted. The optional shared token protects GX endpoints. ComfyUI's native endpoints require their own network access controls. Configure the same token on participating instances through Settings → GXNodes.
+### LAN discovery and shared compute
 
-### Topaz Video AI
+1. On each trusted LAN machine, run ComfyUI on a LAN-reachable address and enable **Shared Compute**. On the worker, allow incoming shared tasks.
+2. Allow the worker's ComfyUI TCP port and UDP `8765` for discovery on the trusted LAN. Use instances on the same broadcast network.
+3. On the submitting machine, open the **Shared Compute** sidebar, select the worker, and choose **Shared Run**. Review the target, requirements and transferable assets before confirming.
+4. Open the task list to monitor the run and load completed outputs. Start with a simple image workflow to confirm the worker has the required nodes and models.
 
-Three nodes provide frame interpolation, enhancement, and combined interpolation/enhancement. Each accepts images or a local video path and outputs images and a video path.
+Discovery uses local UDP broadcast and does not authenticate devices. Workflow and file transfers use HTTP. Use a trusted network and check the target address before submitting. The shared token protects GX endpoints. Manage access to native ComfyUI endpoints separately.
 
-Requires a licensed local installation of **Topaz Video AI 6.2.1**, downloaded models, and an NVIDIA GPU with NVENC support. Configure the Topaz FFmpeg executable under Settings → GXNodes → Topaz Video AI. The executable and encoding/device configuration are managed through settings and backend defaults.
+### Local Topaz Video AI
 
-Enhancement includes Proteus and Rhea. Interpolation includes Chronos, Chronos Fast, and Apollo. Add Noise uses the Topaz UI scale, with a value of 1 mapping to `prenoise=0.01`. Model availability depends on the local installation.
+Use a licensed **Topaz Video AI 6.2.1** installation, the required model files, and an NVIDIA GPU with NVENC support. Set `topaz_ffmpeg_path` or configure the executable in **Settings → GXNodes → Topaz Video AI**. The path must point to Topaz's bundled executable.
 
-### Saving and utility nodes
+| Node | Use |
+| --- | --- |
+| `GX Topaz Video AI Frame Interpolation` | Change frame rate or apply slow motion with Chronos, Chronos Fast, or Apollo. |
+| `GX Topaz Video AI Enhancement` | Resize and enhance with Proteus or Rhea. |
+| `GX Topaz Video AI Interpolation + Enhancement` | Apply interpolation and enhancement in one pass. |
 
-`GX Save Images By Name` saves image batches with one filename per image. Connect filenames from your folder/loop loader to preserve the source naming. `Save Image Plus` supports filename prefixes and subfolders. Output is saved within the ComfyUI output directory.
+On the canvas, connect an image sequence from a video loader to `images`. API workflows may supply a local `input_path`. The outputs are `images` and `video path`. Processing runs on the machine hosting ComfyUI. Start with a short clip to confirm model availability, output frame rate and dimensions. Add Noise follows the Topaz UI scale, with `1` corresponding to `prenoise=0.01`.
 
-The [folder-loop example](workflows/GXSaveImagesByName.json) uses `easy loadImagesForLoop` from ComfyUI-Easy-Use. Choose your own input folder after loading the example.
+### LLM and ComfyPilot
 
-Additional nodes support video saving, image sizing, sharpening, video reversal, and text display. Compatibility nodes remain available for saved workflows.
+Connect `GX API Config → GX Generation Config → GX LLM Chat Completions`. Select a Chat Completions-compatible endpoint and model. For custom authentication, set `GX_LLM_<NAME>_KEY` and the matching `GX_LLM_<NAME>_BASE_URL` in the ComfyUI process environment. Select the key's environment variable name in the node. Keep model keys out of JSON examples and workflows. DSH profiles can be used when an existing local DSH installation is available.
 
-### ComfyPilot integration
+ComfyPilot nodes use the separately installed service configured under **Settings → GXNodes → Enterprise**. Model requests send the selected context to the configured provider and may incur provider charges.
 
-Optional ComfyPilot nodes connect to a separately installed local service. Configure its service URL and node visibility under the enterprise settings in Settings → GXNodes. A remote service requires enabling remote URLs.
+### Named saves
 
-## Settings and language
+Connect a folder/loop loader's original filenames and image batch to `GX Save Images By Name`. The counts must match. The node saves into the ComfyUI output directory and uses numeric suffixes to preserve existing files. `Save Image Plus` supports prefixes and subfolders.
 
-Settings → GXNodes contains enterprise integration, shared compute, and Topaz configuration. Settings are stored in ComfyUI's `user/GXNodes/settings.json`. Node definitions, tooltips, and custom interfaces include English and Chinese localizations.
+The [folder-loop workflow](https://github.com/gxwemedia/ComfyUI_GXNodes/blob/v0.1.1/workflows/GXSaveImagesByName.json) is available from GitHub. It uses ComfyUI-Easy-Use. Choose your own input directory after loading it.
 
-## Support
+## Troubleshooting
 
-Report issues with your ComfyUI version, GXNodes version, error log, and a minimal workflow. Remove credentials and private media before sharing.
+| Symptom | Check |
+| --- | --- |
+| GXNodes does not appear | Check ComfyUI and Python versions, install dependencies with ComfyUI's Python, and check the startup log. |
+| A JSON change seems ignored | Confirm the effective ComfyUI user directory, filename without `.example`, JSON syntax, and a restart. |
+| A worker is missing | Verify LAN reachability, the Shared Compute toggle, and the TCP/UDP firewall rules. |
+| Topaz cannot start | Check the bundled executable path, local license, installed model, and NVENC support. |
 
-## License
-
-MIT. See [LICENSE](LICENSE).
+Report issues with the versions, error log, and a minimal workflow. Remove credentials and private inputs before sharing. See [MIT license](LICENSE).

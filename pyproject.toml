@@ -1,7 +1,7 @@
 [project]
 name = "gxnodes"
-version = "0.1.0"
-description = "LAN shared compute, LLM workflows, Topaz Video AI processing, and named image exports for ComfyUI."
+version = "0.1.1"
+description = "LAN discovery and shared compute, local Topaz Video AI processing, LLM workflows, and named exports for ComfyUI."
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.11"

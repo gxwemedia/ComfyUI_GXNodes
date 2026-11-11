@@ -1,21 +1,27 @@
 import json
 import os
 import time
+from pathlib import Path
 
 import folder_paths
 from comfy_api.latest import io
 
 
 def load_config():
-    try:
-        config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config.json")
-        with open(config_path, "r", encoding="utf-8") as handle:
-            config = json.load(handle)
-        names = config.get("subfolder_names")
+    node_directory = Path(__file__).resolve().parent
+    paths = (
+        Path(folder_paths.get_user_directory()) / "GXNodes" / "save-folders.json",
+        node_directory / "config.json",
+        node_directory.parent / "save-folders.json.example",
+    )
+    for path in paths:
+        try:
+            config = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        names = config.get("subfolder_names") if isinstance(config, dict) else None
         if isinstance(names, list) and names and all(isinstance(name, str) for name in names):
             return names
-    except (OSError, ValueError) as error:
-        print(f"加载配置文件失败: {error}")
     return ["None"]
 
 

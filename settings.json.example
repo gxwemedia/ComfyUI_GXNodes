@@ -1,0 +1,11 @@
+{
+  "enable_comfypilot": true,
+  "enable_shared_compute": true,
+  "allow_incoming_shared": true,
+  "comfypilot_url": "http://127.0.0.1:39112",
+  "allow_remote_comfypilot": false,
+  "shared_token": "",
+  "topaz_ffmpeg_path": "",
+  "result_retention_days": 0,
+  "transfer_retention_hours": 24
+}

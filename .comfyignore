@@ -1,4 +1,4 @@
-# Ship only the runtime, localizations, installation guide, and license.
+# Ship runtime code, localizations, user guides, and configuration examples.
 /*
 !/__init__.py
 !/v3_compat.py
@@ -12,11 +12,11 @@
 !/README.zh-CN.md
 !/pyproject.toml
 !/requirements.txt
+!/settings.json.example
+!/save-folders.json.example
 !/nodes/
 !/nodes/**
 !/js/
 !/js/**
 !/locales/
 !/locales/**
-!/workflows/
-!/workflows/**
