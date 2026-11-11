@@ -1,4 +1,5 @@
 """局域网共享算力：发现实例、迁移受控资源、转发任务并回传媒体结果。"""
+
 import asyncio
 import copy
 import hashlib
@@ -64,16 +65,23 @@ def _declared_inputs(node_class):
 
 
 def _is_resource_input(node_class, name, config):
-    if (isinstance(config, (tuple, list)) and len(config) > 1
-            and isinstance(config[1], dict)
-            and any(config[1].get(marker) is True for marker in _UPLOAD_MARKERS)):
+    if (
+        isinstance(config, (tuple, list))
+        and len(config) > 1
+        and isinstance(config[1], dict)
+        and any(config[1].get(marker) is True for marker in _UPLOAD_MARKERS)
+    ):
         return True
     # GX result readers use a STRING reference rather than an upload widget.
     module = sys.modules.get(getattr(node_class, "__module__", ""))
-    return (name == "result" and module is not None
-            and module.__name__.endswith(".gxsharedloadmedia")
-            and getattr(node_class, "__name__", "") in {"GXSharedLoadImage", "GXSharedLoadAudio", "GXSharedLoadVideo"}
-            and getattr(module, node_class.__name__, None) is node_class)
+    return (
+        name == "result"
+        and module is not None
+        and module.__name__.endswith(".gxsharedloadmedia")
+        and getattr(node_class, "__name__", "")
+        in {"GXSharedLoadImage", "GXSharedLoadAudio", "GXSharedLoadVideo"}
+        and getattr(module, node_class.__name__, None) is node_class
+    )
 
 
 def _active_text_only_fields():
@@ -81,11 +89,17 @@ def _active_text_only_fields():
     try:
         official = getattr(nodes, "CLIPTextEncode", None)
         mapping = getattr(nodes, "NODE_CLASS_MAPPINGS", None)
-        if official is not None and isinstance(mapping, dict) and mapping.get("CLIPTextEncode") is official:
+        if (
+            official is not None
+            and isinstance(mapping, dict)
+            and mapping.get("CLIPTextEncode") is official
+        ):
             return _TEXT_ONLY_FIELDS
     except (AttributeError, TypeError):
         pass
     return {}
+
+
 _REMOTE_TIMEOUT_SECONDS = 30
 _JOB_STATUS_TIMEOUT_SECONDS = 3
 _MAX_JOB_STATUS_BYTES = 1024 * 1024
@@ -115,7 +129,10 @@ def _incoming_allowed():
 
 
 def _incoming_denied():
-    return web.json_response({"error": "目标实例已暂停接收共享任务", "code": "gx_incoming_disabled"}, status=409)
+    return web.json_response(
+        {"error": "目标实例已暂停接收共享任务", "code": "gx_incoming_disabled"},
+        status=409,
+    )
 
 
 def _guard_shared_prompt(data):
@@ -123,7 +140,11 @@ def _guard_shared_prompt(data):
     if not isinstance(data, dict):
         return data
     extra = data.get("extra_data")
-    if isinstance(extra, dict) and extra.get("gx_shared") is True and not _incoming_allowed():
+    if (
+        isinstance(extra, dict)
+        and extra.get("gx_shared") is True
+        and not _incoming_allowed()
+    ):
         return {key: value for key, value in data.items() if key != "prompt"}
     return data
 
@@ -136,7 +157,9 @@ async def _incoming_prompt_middleware(request, handler):
         try:
             address = ipaddress.ip_address(peer[0]) if peer else None
             mapped = getattr(address, "ipv4_mapped", None)
-            local = bool(address and (address.is_loopback or (mapped and mapped.is_loopback)))
+            local = bool(
+                address and (address.is_loopback or (mapped and mapped.is_loopback))
+            )
         except (ValueError, TypeError, IndexError):
             local = False
         if not local and not _incoming_allowed():
@@ -147,9 +170,11 @@ async def _incoming_prompt_middleware(request, handler):
 def _incoming_hook_ready():
     try:
         instance = PromptServer.instance
-        return (bool(_started)
-                and _guard_shared_prompt in getattr(instance, "on_prompt_handlers", ())
-                and _incoming_prompt_middleware in instance.app.middlewares)
+        return (
+            bool(_started)
+            and _guard_shared_prompt in getattr(instance, "on_prompt_handlers", ())
+            and _incoming_prompt_middleware in instance.app.middlewares
+        )
     except (AttributeError, TypeError):
         return False
 
@@ -171,7 +196,11 @@ def _local_registry_dir():
     root = os.environ.get("GX_SHARED_REGISTRY_DIR")
     if root:
         return Path(root)
-    return Path(os.environ.get("LOCALAPPDATA", Path.home())) / "ComfyUI_GXNodes" / "shared-peers"
+    return (
+        Path(os.environ.get("LOCALAPPDATA", Path.home()))
+        / "ComfyUI_GXNodes"
+        / "shared-peers"
+    )
 
 
 def _jobs_dir():
@@ -195,7 +224,11 @@ def _local_ip():
 
 def _listening_port():
     port = getattr(PromptServer.instance, "port", None)
-    return port if isinstance(port, int) and not isinstance(port, bool) and 0 < port < 65536 else None
+    return (
+        port
+        if isinstance(port, int) and not isinstance(port, bool) and 0 < port < 65536
+        else None
+    )
 
 
 def _identity(port=None):
@@ -212,21 +245,33 @@ def _status_payload():
         return None
     running, pending = PromptServer.instance.prompt_queue.get_current_queue_volatile()
     return {
-        "id": _identity(port), "name": socket.gethostname(), "host": _local_ip(),
+        "id": _identity(port),
+        "name": socket.gethostname(),
+        "host": _local_ip(),
         "port": port,
-        "queue": len(running) + len(pending), "running": len(running),
-        "hardware": _hardware_status(), "protocol": _PROTOCOL_VERSION, "seen": time.time(),
-        "allow_incoming_shared": _incoming_allowed() if _incoming_hook_ready() else None,
+        "queue": len(running) + len(pending),
+        "running": len(running),
+        "hardware": _hardware_status(),
+        "protocol": _PROTOCOL_VERSION,
+        "seen": time.time(),
+        "allow_incoming_shared": _incoming_allowed()
+        if _incoming_hook_ready()
+        else None,
     }
 
 
 def _hardware_status():
     import torch
+
     if not torch.cuda.is_available():
         return {"device": "CPU", "vram_total": 0, "vram_free": 0}
     index = torch.cuda.current_device()
     free, total = torch.cuda.mem_get_info(index)
-    return {"device": torch.cuda.get_device_name(index), "vram_total": total, "vram_free": free}
+    return {
+        "device": torch.cuda.get_device_name(index),
+        "vram_total": total,
+        "vram_free": free,
+    }
 
 
 def _write_local_registration(payload):
@@ -258,7 +303,11 @@ def _safe_peer(peer, now):
         return None
 
     def count(value):
-        return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else 0
+        return (
+            value
+            if isinstance(value, int) and not isinstance(value, bool) and value >= 0
+            else 0
+        )
 
     sanitized = {
         "id": peer_id,
@@ -267,9 +316,13 @@ def _safe_peer(peer, now):
         "port": port,
         "queue": count(peer.get("queue")),
         "running": count(peer.get("running")),
-        "hardware": peer.get("hardware") if isinstance(peer.get("hardware"), dict) else {},
+        "hardware": peer.get("hardware")
+        if isinstance(peer.get("hardware"), dict)
+        else {},
         "protocol": peer.get("protocol", _PROTOCOL_VERSION),
-        "allow_incoming_shared": peer.get("allow_incoming_shared") if isinstance(peer.get("allow_incoming_shared"), bool) else None,
+        "allow_incoming_shared": peer.get("allow_incoming_shared")
+        if isinstance(peer.get("allow_incoming_shared"), bool)
+        else None,
         "last_seen": now,
     }
     return sanitized
@@ -376,7 +429,12 @@ def _normalize_target(value):
         hostname, port = parsed.hostname, parsed.port
     except ValueError:
         return None
-    if parsed.scheme not in ("http", "https") or not hostname or parsed.username is not None or parsed.password is not None:
+    if (
+        parsed.scheme not in ("http", "https")
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
         return None
     if parsed.path not in ("", "/") or parsed.query or parsed.fragment or port == 0:
         return None
@@ -395,7 +453,9 @@ def _normalize_target(value):
 
 
 def _target_dir_name(value):
-    name = "".join(char if char.isalnum() or char in "-._" else "-" for char in str(value or ""))[:64]
+    name = "".join(
+        char if char.isalnum() or char in "-._" else "-" for char in str(value or "")
+    )[:64]
     return name or "peer"
 
 
@@ -450,25 +510,34 @@ def _parse_resource_reference(value):
     lexical = relative.replace("\\", "/")
     parts = lexical.split("/")
     path_shaped = all(part == part.strip() for part in parts)
-    unsafe = ("\x00" in relative or lexical.startswith("/") or bool(ntpath.splitdrive(relative)[0])
-              or (path_shaped and ".." in parts))
+    unsafe = (
+        "\x00" in relative
+        or lexical.startswith("/")
+        or bool(ntpath.splitdrive(relative)[0])
+        or (path_shaped and ".." in parts)
+    )
     if os.name == "nt":
         relative = lexical
     # On POSIX a backslash can be a literal filename character. An unknown field
     # may be checked for ambiguity using its original name, never a renamed path.
-    inspectable = (_safe_relative_path(relative)
-                   or (os.name != "nt" and "\\" in relative and _safe_relative_path(lexical)))
+    inspectable = _safe_relative_path(relative) or (
+        os.name != "nt" and "\\" in relative and _safe_relative_path(lexical)
+    )
     return relative, annotated_base, unsafe, inspectable
 
 
 def _resource_for_value(value, pointer, node_id, remaining=None):
     remaining = _MAX_RESOURCE_BYTES if remaining is None else remaining
+
     def blocked(message):
         return {"node_id": str(node_id), "pointer": pointer, "error": message}
+
     if not isinstance(value, str) or not value:
         return blocked("素材输入必须是单个文件引用")
     try:
-        relative, annotated_base, unsafe, _inspectable = _parse_resource_reference(value)
+        relative, annotated_base, unsafe, _inspectable = _parse_resource_reference(
+            value
+        )
     except (AttributeError, ValueError):
         return blocked("素材路径注解无效")
     if unsafe or not _safe_relative_path(relative):
@@ -476,7 +545,11 @@ def _resource_for_value(value, pointer, node_id, remaining=None):
     try:
         directories = _standard_directories()
         directory_type = next(
-            (name for name, path in directories.items() if annotated_base and Path(annotated_base).resolve() == path),
+            (
+                name
+                for name, path in directories.items()
+                if annotated_base and Path(annotated_base).resolve() == path
+            ),
             None if annotated_base else "input",
         )
         if directory_type is None:
@@ -489,41 +562,80 @@ def _resource_for_value(value, pointer, node_id, remaining=None):
             return blocked("素材文件不存在或不是普通文件")
         size = path.stat().st_size
         if size > _MAX_RESOURCE_BYTES:
-            return {"node_id": str(node_id), "pointer": pointer, "error": "单个资源超过 1 GB 上限"}
+            return {
+                "node_id": str(node_id),
+                "pointer": pointer,
+                "error": "单个资源超过 1 GB 上限",
+            }
         if size > remaining:
-            return {"node_id": str(node_id), "pointer": pointer, "error": "本次资源总量超过 1 GB 上限"}
+            return {
+                "node_id": str(node_id),
+                "pointer": pointer,
+                "error": "本次资源总量超过 1 GB 上限",
+            }
         digest, actual_size = _sha256(path, remaining)
         if actual_size != size:
-            return {"node_id": str(node_id), "pointer": pointer, "error": "素材在扫描期间发生变化，请重新确认"}
+            return {
+                "node_id": str(node_id),
+                "pointer": pointer,
+                "error": "素材在扫描期间发生变化，请重新确认",
+            }
     except _ResourceTooLarge:
-        message = "单个资源超过 1 GB 上限" if remaining == _MAX_RESOURCE_BYTES else "素材在扫描期间发生变化，请重新确认"
+        message = (
+            "单个资源超过 1 GB 上限"
+            if remaining == _MAX_RESOURCE_BYTES
+            else "素材在扫描期间发生变化，请重新确认"
+        )
         return {"node_id": str(node_id), "pointer": pointer, "error": message}
     except (OSError, ValueError) as error:
         raise _ResourceScanError from error
     return {
-        "id": digest, "node_id": str(node_id), "pointer": pointer, "filename": Path(relative).name,
-        "relative_path": relative, "directory_type": directory_type,
-        "size": size, "large": size > _LARGE_RESOURCE_BYTES, "sha256": digest, "_path": str(path),
+        "id": digest,
+        "node_id": str(node_id),
+        "pointer": pointer,
+        "filename": Path(relative).name,
+        "relative_path": relative,
+        "directory_type": directory_type,
+        "size": size,
+        "large": size > _LARGE_RESOURCE_BYTES,
+        "sha256": digest,
+        "_path": str(path),
     }
 
 
 def _walk_resources(value, pointer, node_id, blocked, depth=0):
     """Unknown fields are never migrated; report actual file ambiguity only."""
     if depth > 32:
-        blocked.append({"node_id": str(node_id), "pointer": pointer, "error": "prompt 嵌套层级过深"})
+        blocked.append(
+            {
+                "node_id": str(node_id),
+                "pointer": pointer,
+                "error": "prompt 嵌套层级过深",
+            }
+        )
         return
     if isinstance(value, str) and value:
+
         def reject(message):
-            blocked.append({"node_id": str(node_id), "pointer": pointer, "error": message})
+            blocked.append(
+                {"node_id": str(node_id), "pointer": pointer, "error": message}
+            )
+
         try:
-            relative, annotated_base, unsafe, inspectable = _parse_resource_reference(value)
+            relative, annotated_base, unsafe, inspectable = _parse_resource_reference(
+                value
+            )
             if unsafe:
                 reject("该节点字段尚未支持标准目录以外或无效的路径输入")
                 return
             if not inspectable:
                 return
             directories = _standard_directories()
-            base = Path(annotated_base).resolve() if annotated_base else directories["input"]
+            base = (
+                Path(annotated_base).resolve()
+                if annotated_base
+                else directories["input"]
+            )
             if base not in directories.values():
                 reject("输入引用了不支持的目录")
                 return
@@ -536,8 +648,13 @@ def _walk_resources(value, pointer, node_id, blocked, depth=0):
             reject("无法检查节点输入的本地文件引用")
             return
         if matched:
-            blocked.append({"node_id": str(node_id), "pointer": pointer,
-                            "error": "输入匹配本地文件，但该节点字段尚未支持素材迁移；不会自动上传或改写"})
+            blocked.append(
+                {
+                    "node_id": str(node_id),
+                    "pointer": pointer,
+                    "error": "输入匹配本地文件，但该节点字段尚未支持素材迁移；不会自动上传或改写",
+                }
+            )
     elif isinstance(value, dict):
         for key, item in value.items():
             _walk_resources(item, pointer + [key], node_id, blocked, depth + 1)
@@ -560,13 +677,24 @@ def _scan_resources_sync(prompt):
             try:
                 declared = _declared_inputs(node_class)
             except Exception:
-                blocked.append({"node_id": str(node_id), "pointer": [node_id, "inputs"],
-                                "error": "无法读取节点输入定义，请检查节点版本后重试"})
+                blocked.append(
+                    {
+                        "node_id": str(node_id),
+                        "pointer": [node_id, "inputs"],
+                        "error": "无法读取节点输入定义，请检查节点版本后重试",
+                    }
+                )
                 continue
         for name, value in node.get("inputs", {}).items():
             pointer = [node_id, "inputs", name]
-            if (isinstance(value, list) and len(value) == 2 and isinstance(value[0], str)
-                    and value[0] in prompt and type(value[1]) is int and value[1] >= 0):
+            if (
+                isinstance(value, list)
+                and len(value) == 2
+                and isinstance(value[0], str)
+                and value[0] in prompt
+                and type(value[1]) is int
+                and value[1] >= 0
+            ):
                 continue
             if name in text_only_fields.get(class_type, ()) and isinstance(value, str):
                 continue
@@ -590,10 +718,19 @@ def _public_resource(resource):
     return {key: value for key, value in resource.items() if key != "_path"}
 
 
-_RESOURCE_PUBLIC_KEYS = frozenset({
-    "id", "sha256", "node_id", "pointer", "filename", "relative_path",
-    "directory_type", "size", "large",
-})
+_RESOURCE_PUBLIC_KEYS = frozenset(
+    {
+        "id",
+        "sha256",
+        "node_id",
+        "pointer",
+        "filename",
+        "relative_path",
+        "directory_type",
+        "size",
+        "large",
+    }
+)
 _RESOURCE_REQUIRED_KEYS = _RESOURCE_PUBLIC_KEYS - {"large"}
 
 
@@ -602,23 +739,41 @@ def _resource_contract(resource):
     if not isinstance(resource, dict):
         raise ValueError("资源描述符类型无效")
     keys = set(resource)
-    if not _RESOURCE_REQUIRED_KEYS.issubset(keys) or not keys.issubset(_RESOURCE_PUBLIC_KEYS):
+    if not _RESOURCE_REQUIRED_KEYS.issubset(keys) or not keys.issubset(
+        _RESOURCE_PUBLIC_KEYS
+    ):
         raise ValueError("资源描述符字段无效")
-    for key in ("id", "sha256", "node_id", "filename", "relative_path", "directory_type"):
+    for key in (
+        "id",
+        "sha256",
+        "node_id",
+        "filename",
+        "relative_path",
+        "directory_type",
+    ):
         if not isinstance(resource[key], str) or not resource[key]:
             raise ValueError("资源描述符字段无效")
-    if (not _safe_relative_path(resource["relative_path"])
-            or not _safe_filename(resource["filename"])
-            or resource["relative_path"].split("/")[-1] != resource["filename"]
-            or resource["directory_type"] not in {"input", "output", "temp"}):
+    if (
+        not _safe_relative_path(resource["relative_path"])
+        or not _safe_filename(resource["filename"])
+        or resource["relative_path"].split("/")[-1] != resource["filename"]
+        or resource["directory_type"] not in {"input", "output", "temp"}
+    ):
         raise ValueError("资源路径无效")
     digest = resource["sha256"]
-    if (resource["id"] != digest or len(digest) != 64
-            or any(char not in "0123456789abcdef" for char in digest)):
+    if (
+        resource["id"] != digest
+        or len(digest) != 64
+        or any(char not in "0123456789abcdef" for char in digest)
+    ):
         raise ValueError("资源摘要无效")
     pointer = resource["pointer"]
-    if (not isinstance(pointer, list) or not 3 <= len(pointer) <= 34
-            or pointer[0] != resource["node_id"] or pointer[1] != "inputs"):
+    if (
+        not isinstance(pointer, list)
+        or not 3 <= len(pointer) <= 34
+        or pointer[0] != resource["node_id"]
+        or pointer[1] != "inputs"
+    ):
         raise ValueError("资源输入位置无效")
     for part in pointer:
         if isinstance(part, bool) or not isinstance(part, (str, int)):
@@ -626,12 +781,24 @@ def _resource_contract(resource):
         if isinstance(part, int) and part < 0:
             raise ValueError("资源输入位置无效")
     size = resource["size"]
-    if isinstance(size, bool) or not isinstance(size, int) or not 0 <= size <= _MAX_RESOURCE_BYTES:
+    if (
+        isinstance(size, bool)
+        or not isinstance(size, int)
+        or not 0 <= size <= _MAX_RESOURCE_BYTES
+    ):
         raise ValueError("资源大小无效")
     if "large" in resource and not isinstance(resource["large"], bool):
         raise ValueError("资源描述符字段无效")
-    return (resource["id"], digest, resource["node_id"], tuple(pointer),
-            resource["filename"], resource["relative_path"], resource["directory_type"], size)
+    return (
+        resource["id"],
+        digest,
+        resource["node_id"],
+        tuple(pointer),
+        resource["filename"],
+        resource["relative_path"],
+        resource["directory_type"],
+        size,
+    )
 
 
 def _resource_counter(resources):
@@ -649,20 +816,35 @@ def _set_pointer(document, pointer, value):
 
 
 def _safe_job_id(value):
-    return isinstance(value, str) and bool(value) and len(value) <= 64 and all(char.isalnum() or char in "-_" for char in value)
+    return (
+        isinstance(value, str)
+        and bool(value)
+        and len(value) <= 64
+        and all(char.isalnum() or char in "-_" for char in value)
+    )
 
 
 def _safe_filename(value):
-    if (not isinstance(value, str) or not value or value in {".", ".."}
-            or value[-1] in " ." or any(ord(char) < 32 or char in '/\\:<>"|?*' for char in value)):
+    if (
+        not isinstance(value, str)
+        or not value
+        or value in {".", ".."}
+        or value[-1] in " ."
+        or any(ord(char) < 32 or char in '/\\:<>"|?*' for char in value)
+    ):
         return False
     stem = value.split(".", 1)[0].upper()
     return stem not in {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"} and not (
-        len(stem) == 4 and stem[:3] in {"COM", "LPT"} and stem[3] in "123456789¹²³")
+        len(stem) == 4 and stem[:3] in {"COM", "LPT"} and stem[3] in "123456789¹²³"
+    )
 
 
 def _safe_relative_path(value):
-    return isinstance(value, str) and bool(value) and all(_safe_filename(part) for part in value.split("/"))
+    return (
+        isinstance(value, str)
+        and bool(value)
+        and all(_safe_filename(part) for part in value.split("/"))
+    )
 
 
 def _asset_directory(directory_type, job_id):
@@ -688,7 +870,9 @@ def _custom_validated_inputs(node_class):
         # The public V3 base declares an optional placeholder, not a validator.
         if issubclass(node_class, io.ComfyNode):
             base = getattr(io.ComfyNode, "validate_inputs", None)
-            if getattr(validator, "__func__", validator) is getattr(base, "__func__", base):
+            if getattr(validator, "__func__", validator) is getattr(
+                base, "__func__", base
+            ):
                 return ()
         else:
             validator = None
@@ -710,30 +894,46 @@ def _node_preflight(prompt):
             continue
         node_class = nodes.NODE_CLASS_MAPPINGS.get(node.get("class_type"))
         if node_class is None:
-            missing_nodes.append({"node_id": str(node_id), "class_type": node.get("class_type")})
+            missing_nodes.append(
+                {"node_id": str(node_id), "class_type": node.get("class_type")}
+            )
             continue
         try:
             declared = _declared_inputs(node_class)
         except Exception:
-            missing_nodes.append({"node_id": str(node_id), "class_type": node.get("class_type"),
-                                  "error": "无法读取节点输入定义"})
+            missing_nodes.append(
+                {
+                    "node_id": str(node_id),
+                    "class_type": node.get("class_type"),
+                    "error": "无法读取节点输入定义",
+                }
+            )
             continue
         custom_inputs = _custom_validated_inputs(node_class)
         if custom_inputs is None:
             continue
         for name, value in node.get("inputs", {}).items():
             config = declared.get(name)
-            if name in custom_inputs or not isinstance(value, str) or not isinstance(config, (tuple, list)) or not config:
+            if (
+                name in custom_inputs
+                or not isinstance(value, str)
+                or not isinstance(config, (tuple, list))
+                or not config
+            ):
                 continue
             if _is_resource_input(node_class, name, config):
                 continue
-            metadata = config[1] if len(config) > 1 and isinstance(config[1], dict) else {}
+            metadata = (
+                config[1] if len(config) > 1 and isinstance(config[1], dict) else {}
+            )
             if metadata.get("remote"):
                 continue
             input_type = config[0]
             options = metadata.get("options") if input_type == "COMBO" else input_type
             if isinstance(options, list) and value not in options:
-                missing_models.append({"node_id": str(node_id), "input": name, "value": value})
+                missing_models.append(
+                    {"node_id": str(node_id), "input": name, "value": value}
+                )
     return missing_nodes, missing_models
 
 
@@ -756,7 +956,9 @@ class _RejectRedirect(HTTPRedirectHandler):
 
 
 def _open_no_redirect(request, timeout):
-    return build_opener(ProxyHandler({}), _RejectRedirect()).open(request, timeout=timeout)
+    return build_opener(ProxyHandler({}), _RejectRedirect()).open(
+        request, timeout=timeout
+    )
 
 
 class _RemoteResponseError(RuntimeError):
@@ -769,16 +971,32 @@ async def _remote_json(target, path, payload):
     timeout = aiohttp.ClientTimeout(total=_REMOTE_TIMEOUT_SECONDS)
     async with aiohttp.ClientSession(timeout=timeout, trust_env=False) as session:
         # Some ComfyUI extensions inject a proxy when this request keyword is absent.
-        async with session.post(target + path, json=payload, headers=_peer_headers(), proxy=None, allow_redirects=False) as response:
+        async with session.post(
+            target + path,
+            json=payload,
+            headers=_peer_headers(),
+            proxy=None,
+            allow_redirects=False,
+        ) as response:
             if 300 <= response.status < 400:
-                raise _RemoteResponseError(f"目标返回重定向，已拒绝 HTTP {response.status}", response.status)
+                raise _RemoteResponseError(
+                    f"目标返回重定向，已拒绝 HTTP {response.status}", response.status
+                )
             raw = await response.text()
             data = _decode_json(raw)
             if response.status >= 400:
-                detail = data.get("error") or data.get("detail") if isinstance(data, dict) else None
-                raise _RemoteResponseError(detail or raw[:1000] or f"HTTP {response.status}", response.status)
+                detail = (
+                    data.get("error") or data.get("detail")
+                    if isinstance(data, dict)
+                    else None
+                )
+                raise _RemoteResponseError(
+                    detail or raw[:1000] or f"HTTP {response.status}", response.status
+                )
             if not isinstance(data, dict):
-                raise RuntimeError(f"目标返回了无效响应：HTTP {response.status} {raw[:1000]}")
+                raise RuntimeError(
+                    f"目标返回了无效响应：HTTP {response.status} {raw[:1000]}"
+                )
             return data
 
 
@@ -788,7 +1006,9 @@ class _HashingPayload(Payload):
     _autoclose = True
 
     def __init__(self, source, expected_size, expected_hash, filename):
-        super().__init__(source, content_type="application/octet-stream", filename=filename)
+        super().__init__(
+            source, content_type="application/octet-stream", filename=filename
+        )
         self._source = source
         self._expected_size = expected_size
         self._expected_hash = expected_hash
@@ -805,7 +1025,9 @@ class _HashingPayload(Payload):
     async def _read(self, size):
         if self._closing:
             raise asyncio.CancelledError()
-        self._pending_read = asyncio.create_task(asyncio.to_thread(self._source.read, size))
+        self._pending_read = asyncio.create_task(
+            asyncio.to_thread(self._source.read, size)
+        )
         chunk = await asyncio.shield(self._pending_read)
         if self._closing:
             raise asyncio.CancelledError()
@@ -844,7 +1066,11 @@ class _HashingPayload(Payload):
         if self._started:
             raise RuntimeError("上传请求体不能重放，请重新确认")
         self._started = True
-        limit = self._expected_size if content_length is None else min(self._expected_size, content_length)
+        limit = (
+            self._expected_size
+            if content_length is None
+            else min(self._expected_size, content_length)
+        )
         remaining = limit
         while remaining > 0:
             chunk = await self._read(min(65536, remaining + 1))
@@ -861,7 +1087,10 @@ class _HashingPayload(Payload):
             extra = await self._read(1)
             if extra:
                 self.error = "素材在传输期间发生变化，请重新确认"
-        if self.total != self._expected_size or self.digest.hexdigest() != self._expected_hash:
+        if (
+            self.total != self._expected_size
+            or self.digest.hexdigest() != self._expected_hash
+        ):
             self.error = "素材在传输期间发生变化，请重新确认"
         if not self.error:
             self.completed = True
@@ -876,25 +1105,41 @@ async def _upload_resource(target, job_id, resource, snapshot):
     form.add_field("directory_type", resource["directory_type"])
     form.add_field("filename", resource["filename"])
     form.add_field("relative_path", resource["relative_path"])
-    payload = _HashingPayload(snapshot.source, resource["size"], resource["sha256"], resource["filename"])
+    payload = _HashingPayload(
+        snapshot.source, resource["size"], resource["sha256"], resource["filename"]
+    )
     snapshot.take()  # payload is now the sole owner; no pathname reopen.
     cancelled = False
     try:
         form.add_field("file", payload, filename=resource["filename"])
-        timeout = aiohttp.ClientTimeout(total=max(_REMOTE_TIMEOUT_SECONDS, resource["size"] / (1024 * 1024) * 4))
+        timeout = aiohttp.ClientTimeout(
+            total=max(_REMOTE_TIMEOUT_SECONDS, resource["size"] / (1024 * 1024) * 4)
+        )
         async with aiohttp.ClientSession(timeout=timeout, trust_env=False) as session:
-            async with session.post(target + "/gx/shared/assets", data=form, headers=_peer_headers(), proxy=None, allow_redirects=False) as response:
+            async with session.post(
+                target + "/gx/shared/assets",
+                data=form,
+                headers=_peer_headers(),
+                proxy=None,
+                allow_redirects=False,
+            ) as response:
                 if 300 <= response.status < 400:
                     raise RuntimeError(f"目标返回重定向，已拒绝 HTTP {response.status}")
                 raw = await response.text()
                 data = _decode_json(raw)
                 if response.status >= 400:
                     detail = data.get("error") if isinstance(data, dict) else None
-                    raise RuntimeError(detail or raw[:1000] or f"上传资源失败 HTTP {response.status}")
+                    raise RuntimeError(
+                        detail or raw[:1000] or f"上传资源失败 HTTP {response.status}"
+                    )
                 if not isinstance(data, dict) or not data.get("reference"):
-                    raise RuntimeError(f"目标上传响应无效：HTTP {response.status} {raw[:1000]}")
+                    raise RuntimeError(
+                        f"目标上传响应无效：HTTP {response.status} {raw[:1000]}"
+                    )
                 if not payload.completed:
-                    raise RuntimeError(payload.error or "上传请求体未完整写出，请重新确认")
+                    raise RuntimeError(
+                        payload.error or "上传请求体未完整写出，请重新确认"
+                    )
                 return data["reference"]
     except asyncio.CancelledError:
         cancelled = True
@@ -913,8 +1158,14 @@ def _save_job(job, *, accepted_submission=False):
     temporary = None
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
-                                         prefix=f".{snapshot['id']}-", suffix=".tmp", delete=False) as stream:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{snapshot['id']}-",
+            suffix=".tmp",
+            delete=False,
+        ) as stream:
             temporary = Path(stream.name)
             stream.write(serialized)
         with _lock:
@@ -925,15 +1176,22 @@ def _save_job(job, *, accepted_submission=False):
         conservative = copy.deepcopy(snapshot)
         conservative["status"] = "failed"
         conservative.pop("completed_at", None)
-        conservative["error"] = "任务保存状态未确认，可能已有远端任务或部分结果；请核对，不会自动重试"
+        conservative["error"] = (
+            "任务保存状态未确认，可能已有远端任务或部分结果；请核对，不会自动重试"
+        )
         if accepted_submission:
-            conservative.update(error_code="accepted_save_unconfirmed", error=_ACCEPTED_SAVE_UNCONFIRMED)
+            conservative.update(
+                error_code="accepted_save_unconfirmed", error=_ACCEPTED_SAVE_UNCONFIRMED
+            )
         try:
             persisted = json.loads(path.read_text(encoding="utf-8"))
-            if (isinstance(persisted, dict) and persisted.get("id") == snapshot["id"]
-                    and persisted.get("status") == "completed"
-                    and isinstance(persisted.get("outputs"), list)
-                    and all(isinstance(value, str) for value in persisted["outputs"])):
+            if (
+                isinstance(persisted, dict)
+                and persisted.get("id") == snapshot["id"]
+                and persisted.get("status") == "completed"
+                and isinstance(persisted.get("outputs"), list)
+                and all(isinstance(value, str) for value in persisted["outputs"])
+            ):
                 conservative = persisted
         except (OSError, ValueError):
             pass
@@ -950,21 +1208,36 @@ def _save_job(job, *, accepted_submission=False):
 
 def _workflow_name(value):
     if isinstance(value, str) and len(value) <= _MAX_WORKFLOW_NAME:
-        if not any(unicodedata.category(char) in {"Cc", "Cs", "Zl", "Zp"}
-                   or unicodedata.bidirectional(char) in {"LRE", "RLE", "LRO", "RLO", "PDF", "LRI", "RLI", "FSI", "PDI"}
-                   for char in value):
+        if not any(
+            unicodedata.category(char) in {"Cc", "Cs", "Zl", "Zp"}
+            or unicodedata.bidirectional(char)
+            in {"LRE", "RLE", "LRO", "RLO", "PDF", "LRI", "RLI", "FSI", "PDI"}
+            for char in value
+        ):
             return value.strip() or None
     return None
 
 
 def _valid_remote_prompt_id(value):
-    return (isinstance(value, str) and 0 < len(value) <= 256
-            and value.isascii() and all(char.isalnum() or char in "-_" for char in value))
+    return (
+        isinstance(value, str)
+        and 0 < len(value) <= 256
+        and value.isascii()
+        and all(char.isalnum() or char in "-_" for char in value)
+    )
 
 
 def _public_job(job, *, include_target_address=False):
-    public = {key: value for key, value in job.items() if key not in {"target", "resources", "target_address", "workflow_name"}}
-    if job.get("status") == "failed" and not job.get("error_code") and job.get("error") == _SUBMISSION_UNKNOWN:
+    public = {
+        key: value
+        for key, value in job.items()
+        if key not in {"target", "resources", "target_address", "workflow_name"}
+    }
+    if (
+        job.get("status") == "failed"
+        and not job.get("error_code")
+        and job.get("error") == _SUBMISSION_UNKNOWN
+    ):
         public["error_code"] = "submission_unknown"
     if name := _workflow_name(job.get("workflow_name")):
         public["workflow_name"] = name
@@ -972,7 +1245,9 @@ def _public_job(job, *, include_target_address=False):
         public["target_address"] = target
     if job.get("status") == "completed":
         outputs = job.get("outputs") or []
-        public["outputs_available"] = bool(outputs) and all(Path(path).is_file() for path in outputs)
+        public["outputs_available"] = bool(outputs) and all(
+            Path(path).is_file() for path in outputs
+        )
     return public
 
 
@@ -981,9 +1256,13 @@ class _InvalidRemoteHistory(Exception):
 
 
 def _remote_job_status(target, remote_id):
-    request = Request(target + "/api/jobs/" + quote(remote_id, safe=""), headers=_peer_headers())
+    request = Request(
+        target + "/api/jobs/" + quote(remote_id, safe=""), headers=_peer_headers()
+    )
     try:
-        with _open_no_redirect(request, timeout=_JOB_STATUS_TIMEOUT_SECONDS) as response:
+        with _open_no_redirect(
+            request, timeout=_JOB_STATUS_TIMEOUT_SECONDS
+        ) as response:
             raw = response.read(_MAX_JOB_STATUS_BYTES + 1)
         if len(raw) > _MAX_JOB_STATUS_BYTES:
             return None
@@ -995,7 +1274,10 @@ def _remote_job_status(target, remote_id):
                     missing = _decode_json(error.read(512))
                 except (OSError, http.client.HTTPException):
                     missing = None
-                if isinstance(missing, dict) and missing.get("error") == "Job not found":
+                if (
+                    isinstance(missing, dict)
+                    and missing.get("error") == "Job not found"
+                ):
                     return "not_found"
         if 300 <= error.code < 600:
             return None
@@ -1011,7 +1293,9 @@ def _remote_job_status(target, remote_id):
 
 
 def _remote_history_entry(target, remote_id):
-    request = Request(target + "/history/" + quote(remote_id, safe=""), headers=_peer_headers())
+    request = Request(
+        target + "/history/" + quote(remote_id, safe=""), headers=_peer_headers()
+    )
     with _open_no_redirect(request, timeout=_REMOTE_TIMEOUT_SECONDS) as response:
         raw_history = response.read()
     try:
@@ -1023,7 +1307,9 @@ def _remote_history_entry(target, remote_id):
     if remote_id not in history:
         return None
     entry = history[remote_id]
-    if not isinstance(entry, dict) or (entry.get("status") is not None and not isinstance(entry["status"], dict)):
+    if not isinstance(entry, dict) or (
+        entry.get("status") is not None and not isinstance(entry["status"], dict)
+    ):
         raise _InvalidRemoteHistory()
     return entry
 
@@ -1044,13 +1330,23 @@ def _save_monitor_state(job, status, error_code=None, error=None):
 def _media_entries(value, results):
     if isinstance(value, dict):
         media_type = value.get("type")
-        if isinstance(value.get("filename"), str) and isinstance(media_type, str) and media_type in {"input", "output", "temp"}:
+        if (
+            isinstance(value.get("filename"), str)
+            and isinstance(media_type, str)
+            and media_type in {"input", "output", "temp"}
+        ):
             filename, subfolder = value["filename"], value.get("subfolder", "")
             if subfolder is None:
                 subfolder = ""
-            if "\x00" in filename or not _safe_filename(filename) or not _safe_subfolder(subfolder):
+            if (
+                "\x00" in filename
+                or not _safe_filename(filename)
+                or not _safe_subfolder(subfolder)
+            ):
                 raise _InvalidRemoteHistory()
-            results.append({"filename": filename, "subfolder": subfolder, "type": media_type})
+            results.append(
+                {"filename": filename, "subfolder": subfolder, "type": media_type}
+            )
         for item in value.values():
             _media_entries(item, results)
     elif isinstance(value, list):
@@ -1069,11 +1365,17 @@ def _download_media(target, job, media):
     filename, subfolder = media["filename"], media.get("subfolder", "")
     if not _safe_filename(filename) or not _safe_subfolder(subfolder):
         raise ValueError("远端返回了不安全的输出路径")
-    query = urlencode({"filename": filename, "subfolder": subfolder, "type": media["type"]})
+    query = urlencode(
+        {"filename": filename, "subfolder": subfolder, "type": media["type"]}
+    )
     base = _output_root()
     root = base / "GXShared"
     output = root / _target_dir_name(job.get("target_name")) / job["id"]
-    if not _safe_job_id(job.get("id")) or not _is_within(base, root) or not _is_within(root, output):
+    if (
+        not _safe_job_id(job.get("id"))
+        or not _is_within(base, root)
+        or not _is_within(root, output)
+    ):
         raise ValueError("共享结果目录无效")
     output.mkdir(parents=True, exist_ok=True)
     if not _is_within(base, root) or not _is_within(root, output):
@@ -1090,7 +1392,13 @@ def _download_media(target, job, media):
                 if length > _MAX_RESOURCE_BYTES:
                     raise ValueError("远端结果超过 1 GB 上限")
             written = 0
-            with tempfile.NamedTemporaryFile(mode="wb", prefix=".gx-download-", suffix=".tmp", dir=output, delete=False) as sink:
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                prefix=".gx-download-",
+                suffix=".tmp",
+                dir=output,
+                delete=False,
+            ) as sink:
                 temporary = Path(sink.name)
                 while chunk := response.read(1024 * 1024):
                     written += len(chunk)
@@ -1101,7 +1409,11 @@ def _download_media(target, job, media):
                 raise ValueError("远端结果传输不完整")
         suffix = 0
         while True:
-            destination = output / (filename if not suffix else f"{Path(filename).stem}_{suffix}{Path(filename).suffix}")
+            destination = output / (
+                filename
+                if not suffix
+                else f"{Path(filename).stem}_{suffix}{Path(filename).suffix}"
+            )
             try:
                 if os.name == "nt":
                     # Windows rename fails when destination exists, including races.
@@ -1120,7 +1432,9 @@ def _download_media(target, job, media):
 
 def _monitor_job(job_id):
     failures = 0
-    partial_error = "结果下载已停止，可能已有部分文件保存；请核对共享结果目录，不会自动重复下载"
+    partial_error = (
+        "结果下载已停止，可能已有部分文件保存；请核对共享结果目录，不会自动重复下载"
+    )
     while True:
         with _lock:
             job = copy.deepcopy(_jobs.get(job_id))
@@ -1133,19 +1447,29 @@ def _monitor_job(job_id):
         try:
             remote_id = job.get("remote_prompt_id")
             if not _valid_remote_prompt_id(remote_id):
-                _save_monitor_state(job, "failed", "submission_unknown", _SUBMISSION_UNKNOWN)
+                _save_monitor_state(
+                    job, "failed", "submission_unknown", _SUBMISSION_UNKNOWN
+                )
                 return
             native_status = _remote_job_status(job["target"], remote_id)
             if native_status in ("pending", "in_progress"):
                 failures = 0
-                if not _save_monitor_state(job, "queued" if native_status == "pending" else "executing"):
+                if not _save_monitor_state(
+                    job, "queued" if native_status == "pending" else "executing"
+                ):
                     return
                 time.sleep(2)
                 continue
             native_failed = native_status in ("failed", "cancelled")
             try:
                 entry = _remote_history_entry(job["target"], remote_id)
-            except (_InvalidRemoteHistory, URLError, OSError, ValueError, http.client.HTTPException):
+            except (
+                _InvalidRemoteHistory,
+                URLError,
+                OSError,
+                ValueError,
+                http.client.HTTPException,
+            ):
                 if not native_failed:
                     raise
                 entry = None
@@ -1155,9 +1479,15 @@ def _monitor_job(job_id):
                 cancelled = native_status == "cancelled"
                 code = "remote_cancelled" if cancelled else "remote_failed"
                 message = "远端已取消任务" if cancelled else "远端任务失败"
-                _save_monitor_state(job, "failed", code, status_data.get("messages") or message)
+                _save_monitor_state(
+                    job, "failed", code, status_data.get("messages") or message
+                )
                 return
-            if entry is None or status_data.get("completed") is False or status not in (None, "", "success"):
+            if (
+                entry is None
+                or status_data.get("completed") is False
+                or status not in (None, "", "success")
+            ):
                 failures = 0
                 known_native = native_status in ("completed", "not_found")
                 error_code = "remote_status_unknown" if known_native else None
@@ -1185,19 +1515,34 @@ def _monitor_job(job_id):
             _save_job(job)
             return
         except _InvalidRemoteHistory:
-            _save_monitor_state(job, "failed", "invalid_remote_history", "远端任务历史格式无效")
+            _save_monitor_state(
+                job, "failed", "invalid_remote_history", "远端任务历史格式无效"
+            )
             return
-        except (HTTPError, URLError, OSError, ValueError, http.client.HTTPException) as error:
+        except (
+            HTTPError,
+            URLError,
+            OSError,
+            ValueError,
+            http.client.HTTPException,
+        ) as error:
             if download_boundary:
-                _save_monitor_state(job, "failed", "result_download_interrupted", partial_error)
+                _save_monitor_state(
+                    job, "failed", "result_download_interrupted", partial_error
+                )
                 return
             failures += 1
             if failures >= _MONITOR_RETRIES:
                 _save_monitor_state(job, "failed", "monitor_disconnected", str(error))
                 return
-            if not _save_monitor_state(job, job["status"], "monitor_disconnected", "暂时无法连接远端，正在重新检查"):
+            if not _save_monitor_state(
+                job,
+                job["status"],
+                "monitor_disconnected",
+                "暂时无法连接远端，正在重新检查",
+            ):
                 return
-            time.sleep(min(2 ** failures, 30))
+            time.sleep(min(2**failures, 30))
 
 
 def _start_monitor(job_id):
@@ -1239,7 +1584,11 @@ def _restore_jobs(force=False):
         restored_ids = {job["id"] for job in restored}
         with _lock:
             for job_id, job in previous.items():
-                if job_id not in restored_ids and _jobs.get(job_id) is job and job.get("status") in {"completed", "failed"}:
+                if (
+                    job_id not in restored_ids
+                    and _jobs.get(job_id) is job
+                    and job.get("status") in {"completed", "failed"}
+                ):
                     _jobs.pop(job_id)
             # A request may publish its first job while the startup scan is
             # reading disk. Keep the in-process publisher's state authoritative.
@@ -1247,13 +1596,27 @@ def _restore_jobs(force=False):
             _jobs.update({job["id"]: job for job in restored})
         for job in restored:
             if job.get("status") == "downloading":
-                _save_job(dict(job, status="failed",
-                               error="结果下载中断，可能已有部分文件保存；请核对共享结果目录，不会自动重复下载"))
+                _save_job(
+                    dict(
+                        job,
+                        status="failed",
+                        error="结果下载中断，可能已有部分文件保存；请核对共享结果目录，不会自动重复下载",
+                    )
+                )
                 continue
             if job.get("status") == "uploading" and not job.get("remote_prompt_id"):
-                _save_job(dict(job, status="failed", error_code="submission_unknown", error=_SUBMISSION_UNKNOWN))
+                _save_job(
+                    dict(
+                        job,
+                        status="failed",
+                        error_code="submission_unknown",
+                        error=_SUBMISSION_UNKNOWN,
+                    )
+                )
                 continue
-            if job.get("status") not in {"completed", "failed"} and job.get("remote_prompt_id"):
+            if job.get("status") not in {"completed", "failed"} and job.get(
+                "remote_prompt_id"
+            ):
                 _start_monitor(job["id"])
     except (OSError, ValueError):
         pass
@@ -1308,7 +1671,10 @@ def _cleanup_expired(settings=None):
     transfer_hours = settings.get("transfer_retention_hours", 0)
     if transfer_hours > 0:
         deadline = now - transfer_hours * 3600
-        for directory in (Path(folder_paths.get_input_directory()), Path(folder_paths.get_temp_directory())):
+        for directory in (
+            Path(folder_paths.get_input_directory()),
+            Path(folder_paths.get_temp_directory()),
+        ):
             _cleanup_directory(directory / "GXShared", deadline)
     retention_days = settings.get("result_retention_days", 0)
     if retention_days > 0:
@@ -1330,7 +1696,11 @@ async def _peers_route(request):
         return denied
     now, identity = time.time(), _identity()
     with _lock:
-        peers = {item["id"]: item for item in _peers.values() if now - item.get("last_seen", 0) < _STALE_SECONDS}
+        peers = {
+            item["id"]: item
+            for item in _peers.values()
+            if now - item.get("last_seen", 0) < _STALE_SECONDS
+        }
     peers.update({item["id"]: item for item in _local_peers(identity, now)})
     return web.json_response({"peers": list(peers.values()), "self": _status_payload()})
 
@@ -1349,7 +1719,14 @@ async def _preflight_route(request):
     if not isinstance(prompt, dict):
         return web.json_response({"error": "prompt 必须是对象"}, status=400)
     missing_nodes, missing_models = await asyncio.to_thread(_node_preflight, prompt)
-    return web.json_response({"ok": not missing_nodes and not missing_models, "protocol": _PROTOCOL_VERSION, "missing_nodes": missing_nodes, "missing_models": missing_models})
+    return web.json_response(
+        {
+            "ok": not missing_nodes and not missing_models,
+            "protocol": _PROTOCOL_VERSION,
+            "missing_nodes": missing_nodes,
+            "missing_models": missing_models,
+        }
+    )
 
 
 async def _prepare_route(request):
@@ -1364,22 +1741,39 @@ async def _prepare_route(request):
         return web.json_response({"error": "请求体必须是 JSON 对象"}, status=400)
     target, prompt = _normalize_target(body.get("target")), body.get("prompt")
     if not target or not isinstance(prompt, dict):
-        return web.json_response({"error": "目标必须是局域网 HTTP 地址，且 prompt 必须是对象"}, status=400)
+        return web.json_response(
+            {"error": "目标必须是局域网 HTTP 地址，且 prompt 必须是对象"}, status=400
+        )
     try:
         resources, blocked, total = await _scan_resources(prompt)
     except _ResourceScanError:
-        return web.json_response({"error": "素材无法读取或路径无效，请检查后重试"}, status=400)
+        return web.json_response(
+            {"error": "素材无法读取或路径无效，请检查后重试"}, status=400
+        )
     try:
-        preflight = await _remote_json(target, "/gx/shared/preflight", {"prompt": prompt})
+        preflight = await _remote_json(
+            target, "/gx/shared/preflight", {"prompt": prompt}
+        )
     except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError) as error:
         return web.json_response({"error": f"目标预检失败：{error}"}, status=502)
     if preflight.get("protocol") != _PROTOCOL_VERSION:
-        blocked.append({"error": "目标 GXNodes 版本不兼容，请同步三个 custom_nodes 后重启"})
+        blocked.append(
+            {"error": "目标 GXNodes 版本不兼容，请同步三个 custom_nodes 后重启"}
+        )
     if preflight.get("missing_nodes") or preflight.get("missing_models"):
         blocked.append({"error": "目标缺少节点或模型"})
     elif preflight.get("ok") is not True:
         blocked.append({"error": "目标预检未通过"})
-    return web.json_response({"ok": not blocked, "resources": [_public_resource(item) for item in resources], "total_size": total, "blocked": blocked, "preflight": preflight, "resource_contract": _RESOURCE_CONTRACT_VERSION})
+    return web.json_response(
+        {
+            "ok": not blocked,
+            "resources": [_public_resource(item) for item in resources],
+            "total_size": total,
+            "blocked": blocked,
+            "preflight": preflight,
+            "resource_contract": _RESOURCE_CONTRACT_VERSION,
+        }
+    )
 
 
 async def _assets_route(request):
@@ -1400,21 +1794,36 @@ async def _assets_route(request):
             fields[part.name] = await part.text()
         job_id, filename = fields.get("job_id", ""), fields.get("filename", "")
         relative_path = fields.get("relative_path", "")
-        directory_type, expected_hash = fields.get("directory_type", ""), fields.get("sha256", "")
+        directory_type, expected_hash = (
+            fields.get("directory_type", ""),
+            fields.get("sha256", ""),
+        )
         try:
             expected_size = int(fields.get("size", "-1"))
         except ValueError:
             raise ValueError("资源大小或摘要无效")
-        if not _safe_job_id(job_id) or not _safe_filename(filename) or not _safe_relative_path(relative_path) or directory_type not in _standard_directories() or file_part is None:
+        if (
+            not _safe_job_id(job_id)
+            or not _safe_filename(filename)
+            or not _safe_relative_path(relative_path)
+            or directory_type not in _standard_directories()
+            or file_part is None
+        ):
             raise ValueError("资源元数据无效")
-        if expected_size < 0 or expected_size > _MAX_RESOURCE_BYTES or len(expected_hash) != 64:
+        if (
+            expected_size < 0
+            or expected_size > _MAX_RESOURCE_BYTES
+            or len(expected_hash) != 64
+        ):
             raise ValueError("资源大小或摘要无效")
         parts = relative_path.split("/")
         if not parts or parts[-1] != filename:
             raise ValueError("资源路径无效")
         # Only the configured root may follow a Junction/symlink. Every child,
         # temporary write, publication and cleanup is bound to opened handles.
-        with gxshared_receive.receive_root(_standard_directories()[directory_type]) as root:
+        with gxshared_receive.receive_root(
+            _standard_directories()[directory_type]
+        ) as root:
             with root.directory(["GXShared", job_id, *parts[:-1]]) as directory:
                 with directory.create_temporary() as pending:
                     digest, total = hashlib.sha256(), 0
@@ -1427,10 +1836,21 @@ async def _assets_route(request):
                     if total != expected_size or digest.hexdigest() != expected_hash:
                         raise ValueError("资源 SHA-256 或大小校验失败")
                     published_name = pending.publish_unique(filename)
-        actual_relative_path = str(Path(relative_path).with_name(published_name)).replace("\\", "/")
-        return web.json_response({"ok": True, "reference": _reference_for_asset(directory_type, job_id, actual_relative_path)})
+        actual_relative_path = str(
+            Path(relative_path).with_name(published_name)
+        ).replace("\\", "/")
+        return web.json_response(
+            {
+                "ok": True,
+                "reference": _reference_for_asset(
+                    directory_type, job_id, actual_relative_path
+                ),
+            }
+        )
     except (ValueError, OSError) as error:
         return web.json_response({"error": str(error)}, status=400)
+
+
 async def _push_route(request):
     denied = _route_denied(request)
     if denied:
@@ -1445,55 +1865,110 @@ async def _push_route(request):
     approved = body.get("resources")
     contract_version = body.get("resource_contract")
     if not target or not isinstance(prompt, dict):
-        return web.json_response({"error": "目标必须是局域网 HTTP 地址，且 prompt 必须是对象"}, status=400)
+        return web.json_response(
+            {"error": "目标必须是局域网 HTTP 地址，且 prompt 必须是对象"}, status=400
+        )
     workflow_name = _workflow_name(body.get("workflow_name"))
     try:
         resources, blocked, _total = await _scan_resources(prompt)
     except _ResourceScanError:
-        return web.json_response({"error": "素材无法读取或路径无效，请检查后重试"}, status=400)
+        return web.json_response(
+            {"error": "素材无法读取或路径无效，请检查后重试"}, status=400
+        )
     if blocked:
-        return web.json_response({"error": "资源清单已变化或不符合传输限制，请重新确认"}, status=409)
+        return web.json_response(
+            {"error": "资源清单已变化或不符合传输限制，请重新确认"}, status=409
+        )
     if contract_version != _RESOURCE_CONTRACT_VERSION or not isinstance(approved, list):
-        return web.json_response({"error": "资源确认合同已更新，请刷新页面后重新确认"}, status=409)
+        return web.json_response(
+            {"error": "资源确认合同已更新，请刷新页面后重新确认"}, status=409
+        )
     try:
         approved_counter = _resource_counter(approved)
-        current_counter = _resource_counter(_public_resource(item) for item in resources)
+        current_counter = _resource_counter(
+            _public_resource(item) for item in resources
+        )
     except (ValueError, TypeError):
-        return web.json_response({"error": "资源清单已变化或不符合传输限制，请重新确认"}, status=409)
+        return web.json_response(
+            {"error": "资源清单已变化或不符合传输限制，请重新确认"}, status=409
+        )
     if approved_counter != current_counter:
-        return web.json_response({"error": "资源清单已变化或不符合传输限制，请重新确认"}, status=409)
+        return web.json_response(
+            {"error": "资源清单已变化或不符合传输限制，请重新确认"}, status=409
+        )
     job = None
     frozen = None
     submitting = False
     try:
-        frozen = await gxshared_snapshot.snapshot_resources(resources, _MAX_RESOURCE_BYTES)
-        preflight = await _remote_json(target, "/gx/shared/preflight", {"prompt": prompt})
-        if (preflight.get("protocol") != _PROTOCOL_VERSION or preflight.get("ok") is not True
-                or preflight.get("missing_nodes") or preflight.get("missing_models")):
-            return web.json_response({"error": "目标预检未通过", "detail": preflight}, status=409)
+        frozen = await gxshared_snapshot.snapshot_resources(
+            resources, _MAX_RESOURCE_BYTES
+        )
+        preflight = await _remote_json(
+            target, "/gx/shared/preflight", {"prompt": prompt}
+        )
+        if (
+            preflight.get("protocol") != _PROTOCOL_VERSION
+            or preflight.get("ok") is not True
+            or preflight.get("missing_nodes")
+            or preflight.get("missing_models")
+        ):
+            return web.json_response(
+                {"error": "目标预检未通过", "detail": preflight}, status=409
+            )
         job_id = uuid.uuid4().hex
         rewritten = copy.deepcopy(prompt)
-        job = {"id": job_id, "target": target, "target_name": _target_name(target), "status": "uploading", "created_at": time.time(), "resources": [_public_resource(item) for item in resources], "outputs": []}
+        job = {
+            "id": job_id,
+            "target": target,
+            "target_name": _target_name(target),
+            "status": "uploading",
+            "created_at": time.time(),
+            "resources": [_public_resource(item) for item in resources],
+            "outputs": [],
+        }
         if workflow_name is not None:
             job["workflow_name"] = workflow_name
         if not _save_job(job):
-            return web.json_response({"ok": False, "error": "任务保存状态未确认，请核对后再操作", "job_id": job_id}, status=503)
+            return web.json_response(
+                {
+                    "ok": False,
+                    "error": "任务保存状态未确认，请核对后再操作",
+                    "job_id": job_id,
+                },
+                status=503,
+            )
         for item in frozen.items:
             resource = item.resource
             reference = await _upload_resource(target, job_id, resource, item)
             _set_pointer(rewritten, resource["pointer"], reference)
         submitting = True
-        result = await _remote_json(target, "/prompt", {"prompt": rewritten, "extra_data": {"gx_shared": True, "gx_shared_job_id": job_id}})
+        result = await _remote_json(
+            target,
+            "/prompt",
+            {
+                "prompt": rewritten,
+                "extra_data": {"gx_shared": True, "gx_shared_job_id": job_id},
+            },
+        )
         remote_id = result.get("prompt_id")
         if not _valid_remote_prompt_id(remote_id):
             raise RuntimeError("目标未返回 prompt_id")
         job["remote_prompt_id"] = remote_id
         job["status"] = "queued"
         if not _save_job(job, accepted_submission=True):
-            return web.json_response({"ok": False, "error": _ACCEPTED_SAVE_UNCONFIRMED,
-                                      "code": "accepted_save_unconfirmed", "job_id": job_id}, status=503)
+            return web.json_response(
+                {
+                    "ok": False,
+                    "error": _ACCEPTED_SAVE_UNCONFIRMED,
+                    "code": "accepted_save_unconfirmed",
+                    "job_id": job_id,
+                },
+                status=503,
+            )
         _start_monitor(job_id)
-        return web.json_response({"ok": True, "job": _public_job(job), "result": result})
+        return web.json_response(
+            {"ok": True, "job": _public_job(job), "result": result}
+        )
     except gxshared_snapshot.SnapshotError as error:
         return web.json_response({"ok": False, "error": str(error)}, status=409)
     except asyncio.CancelledError:
@@ -1504,7 +1979,11 @@ async def _push_route(request):
             _save_job(job)
         raise
     except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError, OSError) as error:
-        rejected = isinstance(error, _RemoteResponseError) and 400 <= error.status < 500 and error.status != 408
+        rejected = (
+            isinstance(error, _RemoteResponseError)
+            and 400 <= error.status < 500
+            and error.status != 408
+        )
         uncertain = submitting and not job.get("remote_prompt_id") and not rejected
         message = _SUBMISSION_UNKNOWN if uncertain else str(error)
         response = {"ok": False, "error": message}
@@ -1514,7 +1993,10 @@ async def _push_route(request):
         if job:
             job["status"], job["error"] = "failed", message
             if not _save_job(job):
-                response.update(error="任务保存状态未确认，请核对远端任务及共享结果，勿重复提交", job_id=job["id"])
+                response.update(
+                    error="任务保存状态未确认，请核对远端任务及共享结果，勿重复提交",
+                    job_id=job["id"],
+                )
                 return web.json_response(response, status=503)
         return web.json_response(response, status=502)
     finally:
@@ -1530,8 +2012,12 @@ async def _jobs_route(request):
         return denied
     _restore_jobs()
     with _lock:
-        jobs = [_public_job(item, include_target_address=True)
-                for item in sorted(_jobs.values(), key=lambda item: item.get("created_at", 0), reverse=True)[:20]]
+        jobs = [
+            _public_job(item, include_target_address=True)
+            for item in sorted(
+                _jobs.values(), key=lambda item: item.get("created_at", 0), reverse=True
+            )[:20]
+        ]
     return web.json_response({"jobs": jobs})
 
 
@@ -1550,11 +2036,18 @@ async def _settings_route(request):
         return web.json_response({"error": "请求体必须是 JSON 对象"}, status=400)
     if not isinstance(body, dict):
         return web.json_response({"error": "请求体必须是 JSON 对象"}, status=400)
-    patch = {key: body[key] for key in ("result_retention_days", "transfer_retention_hours") if key in body}
+    patch = {
+        key: body[key]
+        for key in ("result_retention_days", "transfer_retention_hours")
+        if key in body
+    }
     try:
         saved = gxsettings.save_settings(patch)
     except gxsettings.SettingsBusyError:
-        return web.json_response({"error": "设置正由其他实例保存，请稍后重试", "code": "gx_settings_busy"}, status=409)
+        return web.json_response(
+            {"error": "设置正由其他实例保存，请稍后重试", "code": "gx_settings_busy"},
+            status=409,
+        )
     except (OSError, ValueError) as error:
         return web.json_response({"error": str(error)}, status=400)
     threading.Thread(target=_cleanup_expired, args=(saved,), daemon=True).start()
@@ -1581,8 +2074,17 @@ def register_shared_routes():
     routes.get("/gx/shared/settings")(_settings_route)
     routes.post("/gx/shared/settings")(_settings_route)
     _started = True
-    threading.Thread(target=_local_registration_loop, name="gx-local-registry", daemon=True).start()
+    threading.Thread(
+        target=_local_registration_loop, name="gx-local-registry", daemon=True
+    ).start()
     threading.Thread(target=_beacon, name="gx-shared-beacon", daemon=True).start()
-    threading.Thread(target=_restore_jobs, name="gx-shared-job-restore", daemon=True).start()
-    threading.Thread(target=_cleanup_assets_loop, name="gx-shared-asset-cleanup", daemon=True).start()
-    print("[ComfyUI_GXNodes] shared compute protocol %s registered on UDP %s" % (_PROTOCOL_VERSION, _PORT))
+    threading.Thread(
+        target=_restore_jobs, name="gx-shared-job-restore", daemon=True
+    ).start()
+    threading.Thread(
+        target=_cleanup_assets_loop, name="gx-shared-asset-cleanup", daemon=True
+    ).start()
+    print(
+        "[ComfyUI_GXNodes] shared compute protocol %s registered on UDP %s"
+        % (_PROTOCOL_VERSION, _PORT)
+    )

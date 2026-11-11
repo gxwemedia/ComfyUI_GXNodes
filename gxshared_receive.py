@@ -186,8 +186,10 @@ class ReceiveDirectory(_Owned):
             try:
                 fd = msvcrt.open_osfhandle(handle,os.O_RDWR|os.O_BINARY)
             except BaseException:
-                try: self.native.delete(handle)
-                finally: self.native.k.CloseHandle(handle)
+                try:
+                    self.native.delete(handle)
+                finally:
+                    self.native.k.CloseHandle(handle)
                 raise
         else:
             if sys.platform != 'linux' or not hasattr(os,'O_TMPFILE') or not os.path.isdir('/proc/self/fd'):
