@@ -1,6 +1,6 @@
 [project]
 name = "gxnodes"
-version = "0.1.1"
+version = "0.1.2"
 description = "LAN discovery and shared compute, local Topaz Video AI processing, LLM workflows, and named exports for ComfyUI."
 license = { file = "LICENSE" }
 readme = "README.md"

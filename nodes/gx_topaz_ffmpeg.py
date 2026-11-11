@@ -39,6 +39,7 @@ _DUR_RE = re.compile(r"Duration:\s*(\d+:\d+:\d+\.\d+)")
 
 SWS_FLAGS = "spline+accurate_rnd+full_chroma_int"
 MOV_FLAGS = "frag_keyframe+empty_moov+delay_moov+use_metadata_tags+write_colr"
+MOV_FLAGS_AUDIO_COPY = "use_metadata_tags+write_colr"
 
 FI_MODELS = ("chf-3", "chr-2", "apo-8")
 UP_MODELS = ("rhea-1", "prob-4")  # rhea-1 = Rhea, prob-4 = Proteus
@@ -307,20 +308,22 @@ def build_ffmpeg_argv(cfg: TopazConfig, output_path: str | None = None) -> list[
     # IMAGE 帧序列封装的临时视频无音轨，若仍写 -map_metadata:s:a:0 / -bsf:a:0 会引用
     # 不存在的输出音轨，导致 "Stream specifier a:0 does not match any streams" ->
     # "Error opening output file ... Invalid argument" 而整体失败。
+    copy_audio_stream = cfg.copy_audio and cfg.has_audio and cfg.audio_codec == "copy"
     if cfg.copy_audio and cfg.has_audio:
         argv += ["-map", "0:a?", "-map_metadata:s:a:0", "0:s:a:0"]
         if cfg.audio_codec and cfg.audio_codec != "none":
             argv += ["-c:a", cfg.audio_codec]
             if cfg.audio_codec != "copy" and cfg.audio_bitrate.strip():
                 argv += ["-b:a", cfg.audio_bitrate.strip()]
-        if cfg.audio_codec == "copy":
+        if copy_audio_stream:
             # 文档原命令在 copy 音频流时附加此 bsf
             argv += ["-bsf:a:0", "aac_adtstoasc"]
     argv += [
         "-map_metadata", "0",
         "-map_metadata:s:v", "0:s:v",
         "-fps_mode:v", "passthrough",
-        "-movflags", MOV_FLAGS,
+        # A finalized MP4/MOV preserves copied AAC packet trimming and track duration.
+        "-movflags", MOV_FLAGS_AUDIO_COPY if copy_audio_stream else MOV_FLAGS,
         "-bf", "0",
         "-metadata", f"videoai={build_metadata(cfg)}",
     ]

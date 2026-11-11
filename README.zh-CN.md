@@ -2,11 +2,11 @@
 
 ComfyUI 自定义节点合集，提供 **局域网发现与共享算力**、**Topaz Video AI 本地处理**、LLM 工作流及按原文件名保存图像。
 
-[English](README.md) · [Comfy Registry](https://registry.comfy.org/nodes/gxnodes) · [GitHub v0.1.1](https://github.com/gxwemedia/ComfyUI_GXNodes/releases/tag/v0.1.1)
+[English](README.md) · [Comfy Registry](https://registry.comfy.org/nodes/gxnodes) · [GitHub v0.1.2](https://github.com/gxwemedia/ComfyUI_GXNodes/releases/tag/v0.1.2)
 
 | 发布版本 | Registry 包名 | ComfyUI | Python |
 | --- | --- | --- | --- |
-| `0.1.1` | `gxnodes` | `0.44.2+` | `3.11+` |
+| `0.1.2` | `gxnodes` | `0.44.2+` | `3.11+` |
 
 ## 安装和启动
 
@@ -15,7 +15,7 @@ ComfyUI 自定义节点合集，提供 **局域网发现与共享算力**、**To
 **Git 安装** — 从 ComfyUI 目录执行以下命令。请使用启动 ComfyUI 的 Python 解释器安装依赖。
 
 ```bash
-git clone --branch v0.1.1 https://github.com/gxwemedia/ComfyUI_GXNodes.git custom_nodes/gxnodes
+git clone --branch v0.1.2 https://github.com/gxwemedia/ComfyUI_GXNodes.git custom_nodes/gxnodes
 python -m pip install -r custom_nodes/gxnodes/requirements.txt
 ```
 
@@ -69,6 +69,8 @@ Windows 路径在 JSON 中可使用正斜杠，或对每个反斜杠转义。常
 
 在画布上把视频加载节点的帧序列接到 `images`。API 工作流也可以填写本机 `input_path`。节点输出 `images` 和 `video path`，处理在运行 ComfyUI 的机器上进行。首次可用短视频确认模型、帧率和分辨率。Add Noise 沿用 Topaz UI 刻度，`1` 对应 `prenoise=0.01`。
 
+要在输出 MP4 中保留原音轨，请使用 `input_path` 和默认音频复制设置。`images` 只包含视频帧。将**重复帧判定灵敏度**设为 `0.01`，对应 Topaz Video AI 界面中的 `10`。Apollo 输出的视频轨可能早于原片结束，极短素材或较高的重复帧灵敏度下尤其明显。
+
 ### LLM 和 ComfyPilot
 
 连接 `GX API Config → GX Generation Config → GX LLM Chat Completions`，选择兼容 Chat Completions 的服务和模型。自定义服务凭据使用 ComfyUI 进程环境变量 `GX_LLM_<NAME>_KEY`，并设置对应的 `GX_LLM_<NAME>_BASE_URL`。节点中填写环境变量名。模板和工作流都只保留公开配置，密钥存放在本机环境变量中。已有本机 DSH 环境时也可选择 DSH 模型配置。
@@ -79,7 +81,7 @@ ComfyPilot 节点连接单独安装的服务，在 **设置 → GXNodes → 企�
 
 将文件夹遍历或循环加载节点输出的原文件名和图像批次接到 `GX Save Images By Name`。文件名和图像数量需一致。节点保存到 ComfyUI output 目录，同名文件会追加数字后缀。`Save Image Plus` 支持文件名前缀和子目录。
 
-[文件夹循环工作流](https://github.com/gxwemedia/ComfyUI_GXNodes/blob/v0.1.1/workflows/GXSaveImagesByName.json)可在 GitHub 下载，依赖 ComfyUI-Easy-Use。载入后选择自己的输入目录。
+[文件夹循环工作流](https://github.com/gxwemedia/ComfyUI_GXNodes/blob/v0.1.2/workflows/GXSaveImagesByName.json)可在 GitHub 下载，依赖 ComfyUI-Easy-Use。载入后选择自己的输入目录。
 
 ## 排查问题
 

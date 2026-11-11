@@ -2,11 +2,11 @@
 
 ComfyUI custom nodes for **LAN discovery and shared compute**, **local Topaz Video AI**, LLM workflows, and named media exports.
 
-[中文指南](README.zh-CN.md) · [Comfy Registry](https://registry.comfy.org/nodes/gxnodes) · [GitHub v0.1.1](https://github.com/gxwemedia/ComfyUI_GXNodes/releases/tag/v0.1.1)
+[中文指南](README.zh-CN.md) · [Comfy Registry](https://registry.comfy.org/nodes/gxnodes) · [GitHub v0.1.2](https://github.com/gxwemedia/ComfyUI_GXNodes/releases/tag/v0.1.2)
 
 | Release | Registry package | ComfyUI | Python |
 | --- | --- | --- | --- |
-| `0.1.1` | `gxnodes` | `0.44.2+` | `3.11+` |
+| `0.1.2` | `gxnodes` | `0.44.2+` | `3.11+` |
 
 ## Install and start
 
@@ -15,7 +15,7 @@ ComfyUI custom nodes for **LAN discovery and shared compute**, **local Topaz Vid
 **Git** — Run these commands from the ComfyUI directory. Use the Python interpreter that launches your ComfyUI instance to install the dependencies.
 
 ```bash
-git clone --branch v0.1.1 https://github.com/gxwemedia/ComfyUI_GXNodes.git custom_nodes/gxnodes
+git clone --branch v0.1.2 https://github.com/gxwemedia/ComfyUI_GXNodes.git custom_nodes/gxnodes
 python -m pip install -r custom_nodes/gxnodes/requirements.txt
 ```
 
@@ -69,6 +69,8 @@ Use a licensed **Topaz Video AI 6.2.1** installation, the required model files, 
 
 On the canvas, connect an image sequence from a video loader to `images`. API workflows may supply a local `input_path`. The outputs are `images` and `video path`. Processing runs on the machine hosting ComfyUI. Start with a short clip to confirm model availability, output frame rate and dimensions. Add Noise follows the Topaz UI scale, with `1` corresponding to `prenoise=0.01`.
 
+For a source audio track in the output MP4, use `input_path` and the default audio copy setting. An `images` input contains only frames. To match Topaz Video AI's duplicate-frame sensitivity of `10`, set **Duplicate frame sensitivity** to `0.01`. With Apollo, the output video track can end earlier than the source, especially with very short clips or higher duplicate-frame sensitivity.
+
 ### LLM and ComfyPilot
 
 Connect `GX API Config → GX Generation Config → GX LLM Chat Completions`. Select a Chat Completions-compatible endpoint and model. For custom authentication, set `GX_LLM_<NAME>_KEY` and the matching `GX_LLM_<NAME>_BASE_URL` in the ComfyUI process environment. Select the key's environment variable name in the node. Keep model keys out of JSON examples and workflows. DSH profiles can be used when an existing local DSH installation is available.
@@ -79,7 +81,7 @@ ComfyPilot nodes use the separately installed service configured under **Setting
 
 Connect a folder/loop loader's original filenames and image batch to `GX Save Images By Name`. The counts must match. The node saves into the ComfyUI output directory and uses numeric suffixes to preserve existing files. `Save Image Plus` supports prefixes and subfolders.
 
-The [folder-loop workflow](https://github.com/gxwemedia/ComfyUI_GXNodes/blob/v0.1.1/workflows/GXSaveImagesByName.json) is available from GitHub. It uses ComfyUI-Easy-Use. Choose your own input directory after loading it.
+The [folder-loop workflow](https://github.com/gxwemedia/ComfyUI_GXNodes/blob/v0.1.2/workflows/GXSaveImagesByName.json) is available from GitHub. It uses ComfyUI-Easy-Use. Choose your own input directory after loading it.
 
 ## Troubleshooting
 
