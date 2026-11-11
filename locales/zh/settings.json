@@ -1,0 +1,46 @@
+{
+  "GXNodes_ComfyPilot_AllowRemote": {
+    "name": "允许远程 ComfyPilot 地址",
+    "tooltip": "允许使用本机以外的 ComfyPilot 地址。"
+  },
+  "GXNodes_ComfyPilot_Enabled": {
+    "name": "ComfyPilot 节点",
+    "tooltip": "在节点库显示 ComfyPilot 和 Agnes 节点。"
+  },
+  "GXNodes_ComfyPilot_Url": {
+    "name": "ComfyPilot 服务地址",
+    "tooltip": "新建 ComfyPilot 连接节点的默认地址。"
+  },
+  "GXNodes_Enterprise_Mock": {
+    "name": "企业接入（仅演示）",
+    "tooltip": "仅供界面演示，不提供企业认证、权限或审计，也不影响局域网共享。"
+  },
+  "GXNodes_SharedCompute_AuthorizeAction": {
+    "name": "连接授权",
+    "tooltip": "授权本页面使用此 ComfyUI 实例的共享功能。"
+  },
+  "GXNodes_SharedCompute_Enabled": {
+    "name": "共享算力",
+    "tooltip": "显示共享入口并发现局域网实例。"
+  },
+  "GXNodes_SharedCompute_ManageTokenAction": {
+    "name": "管理共享令牌",
+    "tooltip": "设置或清除此实例的共享令牌。"
+  },
+  "GXNodes_SharedCompute_ResultRetentionDays": {
+    "name": "结果保留天数",
+    "tooltip": "设为 0 可永久保留共享结果与任务记录。"
+  },
+  "GXNodes_SharedCompute_TransferRetentionHours": {
+    "name": "传输资源保留小时",
+    "tooltip": "设为 0 可永久保留 input 和 temp 中的共享文件。"
+  },
+  "GXNodes_Topaz_FfmpegPath": {
+    "name": "Topaz FFmpeg 路径",
+    "tooltip": "填写本机绝对路径。留空时自动探测。"
+  },
+  "GXNodes_Topaz_SupportedVersion": {
+    "name": "支持的 Topaz Video AI 版本",
+    "tooltip": "命令映射所依据的参考版本。此处显示固定支持版本，未自动检测本机软件版本。"
+  }
+}

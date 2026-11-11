@@ -1,0 +1,3 @@
+# Additional dependencies for the LLM nodes. ComfyUI supplies media libraries.
+openai>=3.36.1,<4
+httpx2>=2.16.0,<3

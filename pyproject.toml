@@ -1,0 +1,19 @@
+[project]
+name = "gxnodes"
+version = "0.1.0"
+description = "LAN shared compute, LLM workflows, Topaz Video AI processing, and named image exports for ComfyUI."
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=3.36.1,<4",
+    "httpx2>=2.16.0,<3",
+]
+
+[project.urls]
+Repository = "https://github.com/gxwemedia/ComfyUI_GXNodes"
+
+[tool.comfy]
+PublisherId = "gxwemedia"
+DisplayName = "GXNodes"
+requires-comfyui = ">=0.44.2"

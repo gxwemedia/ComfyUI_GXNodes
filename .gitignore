@@ -1,0 +1,79 @@
+# 历史记录和缓存文件
+.history/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+
+# 编辑器和IDE配置文件
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+.playwright-cli/
+.test-tmp/
+.workbuddy/
+output/
+
+# 环境相关
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 虚拟环境
+venv/
+env/
+*.venv/
+
+# 输出目录 (保留工作流输出的示例图片)
+
+# 安装的依赖
+*.egg/
+*.egg-info/
+build/
+dist/
+
+# Windows特定文件
+*.exe
+*.dll
+*.lib
+*.obj
+
+# macOS特定文件
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux特定文件
+*~
+
+# 文档生成目录
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+
+# Local credentials, runtime state, and internal development records
+.comfypilot/
+.codex/
+.credentials.yaml
+user/
+input/
+temp/
+docs/project-state/
+docs/superpowers/

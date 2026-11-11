@@ -1,0 +1,869 @@
+{
+  "GXAPIConfig": {
+    "description": "Select a local profile or configure an OpenAI-compatible endpoint.",
+    "display_name": "GX API Config",
+    "inputs": {
+      "source": {
+        "name": "Source",
+        "options": {
+          "custom": "Custom API",
+          "dsh": "Local profile"
+        }
+      },
+      "source_api_key_env": {
+        "name": "API key environment variable"
+      },
+      "source_base_url": {
+        "name": "API URL"
+      },
+      "source_dsh_model": {
+        "name": "Local model"
+      },
+      "source_model": {
+        "name": "Model name"
+      },
+      "timeout_seconds": {
+        "name": "Timeout (seconds)"
+      },
+      "vision": {
+        "name": "Vision input",
+        "options": {
+          "auto": "Automatic",
+          "disabled": "Off",
+          "enabled": "On"
+        }
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "API config"
+      }
+    }
+  },
+  "GXAgnesImage": {
+    "description": "Generate an image through Agnes with up to four reference images.",
+    "display_name": "GX Agnes Image",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot connection"
+      },
+      "image": {
+        "name": "Reference 1"
+      },
+      "image_2": {
+        "name": "Reference 2"
+      },
+      "image_3": {
+        "name": "Reference 3"
+      },
+      "image_4": {
+        "name": "Reference 4"
+      },
+      "prompt": {
+        "name": "Prompt"
+      },
+      "ratio": {
+        "name": "Aspect ratio"
+      },
+      "size": {
+        "name": "Resolution"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Image"
+      }
+    }
+  },
+  "GXAgnesText": {
+    "description": "Generate text through Agnes, optionally using a system prompt and an image.",
+    "display_name": "GX Agnes LLM",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot connection"
+      },
+      "image": {
+        "name": "Image"
+      },
+      "prompt": {
+        "name": "Prompt"
+      },
+      "system_prompt": {
+        "name": "System prompt"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Text"
+      }
+    }
+  },
+  "GXAgnesVideo": {
+    "description": "Generate video from text, an image, or keyframes through Agnes.",
+    "display_name": "GX Agnes Video",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot connection"
+      },
+      "first_frame": {
+        "name": "First frame"
+      },
+      "frame_rate": {
+        "name": "Frame rate"
+      },
+      "image": {
+        "name": "Image"
+      },
+      "last_frame": {
+        "name": "Last frame"
+      },
+      "mode": {
+        "name": "Mode",
+        "options": {
+          "image-to-video": "Image to video",
+          "keyframe-video": "Keyframe video",
+          "text-to-video": "Text to video"
+        }
+      },
+      "negative_prompt": {
+        "name": "Negative prompt"
+      },
+      "num_frames": {
+        "name": "Frame count"
+      },
+      "prompt": {
+        "name": "Prompt"
+      },
+      "ratio": {
+        "name": "Aspect ratio"
+      },
+      "seed": {
+        "name": "Seed"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Video"
+      }
+    }
+  },
+  "GXComfyPilotConnection": {
+    "description": "Provide a service address to ComfyPilot and Agnes nodes.",
+    "display_name": "GX ComfyPilot Connection",
+    "inputs": {
+      "base_url": {
+        "name": "Service URL"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "ComfyPilot connection"
+      }
+    }
+  },
+  "GXComfyPilotText": {
+    "description": "Generate text using a provider and model from the ComfyPilot service.",
+    "display_name": "GX ComfyPilot Text",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot connection"
+      },
+      "image": {
+        "name": "Image"
+      },
+      "prompt": {
+        "name": "Prompt"
+      },
+      "provider_model": {
+        "name": "Provider and model",
+        "options": {
+          "auto": "Automatic"
+        }
+      },
+      "system_prompt": {
+        "name": "System prompt"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Text"
+      }
+    }
+  },
+  "GXGenerationConfig": {
+    "description": "Connect an API config and select the generation settings for its protocol.",
+    "display_name": "GX Generation Config",
+    "inputs": {
+      "api_config": {
+        "name": "API config"
+      },
+      "settings": {
+        "name": "Generation preset",
+        "options": {
+          "default": "Default",
+          "openai-completions": "OpenAI Chat Completions"
+        }
+      },
+      "settings_advanced_extra_body": {
+        "name": "Extra request fields (JSON)"
+      },
+      "settings_api_seed_mode": {
+        "name": "Send model seed",
+        "options": {
+          "off": "Off",
+          "use_execution_seed": "Use execution seed"
+        },
+        "tooltip": "Send the execution seed only when supported by the OpenAI-compatible service."
+      },
+      "settings_frequency_penalty": {
+        "name": "Frequency penalty"
+      },
+      "settings_max_tokens": {
+        "name": "Maximum output tokens"
+      },
+      "settings_presence_penalty": {
+        "name": "Presence penalty"
+      },
+      "settings_reasoning_effort": {
+        "name": "Reasoning effort",
+        "options": {
+          "default": "Default",
+          "high": "High",
+          "low": "Low",
+          "medium": "Medium",
+          "minimal": "Minimal",
+          "none": "None",
+          "xhigh": "Very high"
+        }
+      },
+      "settings_response_format": {
+        "name": "Response format",
+        "options": {
+          "default": "Default",
+          "json_object": "JSON object",
+          "text": "Text"
+        }
+      },
+      "settings_stop": {
+        "name": "Stop sequences (one per line)"
+      },
+      "settings_temperature": {
+        "name": "Temperature"
+      },
+      "settings_token_field": {
+        "name": "Output limit field"
+      },
+      "settings_top_p": {
+        "name": "Top P"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Request config"
+      }
+    }
+  },
+  "GXHighPassSharpening": {
+    "description": "Sharpen edges using a high-pass filter with adjustable blending.",
+    "display_name": "🖼️ High Pass Sharpening",
+    "inputs": {
+      "blend_mode": {
+        "name": "Blend mode",
+        "options": {
+          "hard_light": "Hard light",
+          "soft_light": "Soft light"
+        }
+      },
+      "image": {
+        "name": "Image"
+      },
+      "intensity": {
+        "name": "Intensity"
+      },
+      "opacity": {
+        "name": "Opacity"
+      },
+      "radius": {
+        "name": "Radius"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Image"
+      }
+    }
+  },
+  "GXLLMChatCompletions": {
+    "description": "Send text, skills, and media using a connected GX Generation Config.",
+    "display_name": "GX LLM Chat Completions",
+    "inputs": {
+      "context": {
+        "name": "Additional context"
+      },
+      "execution_seed": {
+        "name": "Execution seed",
+        "tooltip": "Increment to rerun or keep the seed fixed to reuse cached results. The seed is sent to the model only when enabled in the request config."
+      },
+      "image1": {
+        "name": "Image 1"
+      },
+      "image2": {
+        "name": "Image 2"
+      },
+      "image3": {
+        "name": "Image 3"
+      },
+      "image4": {
+        "name": "Image 4"
+      },
+      "image5": {
+        "name": "Image 5"
+      },
+      "image6": {
+        "name": "Image 6"
+      },
+      "image7": {
+        "name": "Image 7"
+      },
+      "image8": {
+        "name": "Image 8"
+      },
+      "prompt": {
+        "name": "Prompt"
+      },
+      "request_config": {
+        "name": "Request config"
+      },
+      "skill_context": {
+        "name": "Skill context"
+      },
+      "system": {
+        "name": "System instructions"
+      },
+      "video": {
+        "name": "Video"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Response text"
+      },
+      "1": {
+        "name": "Request details"
+      }
+    }
+  },
+  "GXOutpaintingSize": {
+    "description": "Calculate padding on each side from the target size and offsets.",
+    "display_name": "🔍 Outpainting Size",
+    "inputs": {
+      "Height": {
+        "name": "Target height"
+      },
+      "Horizontal_Offset": {
+        "name": "Horizontal offset"
+      },
+      "Image": {
+        "name": "Image"
+      },
+      "Vertical_Offset": {
+        "name": "Vertical offset"
+      },
+      "Width": {
+        "name": "Target width"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Image"
+      },
+      "1": {
+        "name": "Left"
+      },
+      "2": {
+        "name": "Top"
+      },
+      "3": {
+        "name": "Right"
+      },
+      "4": {
+        "name": "Bottom"
+      }
+    }
+  },
+  "GXSaveImagePlus": {
+    "description": "Save images with date folders, two levels of subfolders, and PNG metadata.",
+    "display_name": "Save Image Plus",
+    "inputs": {
+      "SaveMode": {
+        "name": "Save mode",
+        "options": {
+          "Date": "Date folder",
+          "Default": "Default"
+        }
+      },
+      "SubfolderName1": {
+        "name": "Subfolder 1"
+      },
+      "SubfolderName2": {
+        "name": "Subfolder 2"
+      },
+      "filename_prefix": {
+        "name": "Filename prefix"
+      },
+      "images": {
+        "name": "Images"
+      }
+    }
+  },
+  "GXSaveImagesByName": {
+    "description": "Save an image batch using one filename per image. Files are saved under the ComfyUI output directory.",
+    "display_name": "GX Save Images By Name",
+    "inputs": {
+      "filenames": {
+        "name": "Filenames",
+        "tooltip": "Enter one filename per image, or connect a list from a loop. Use names without directory separators. Existing files receive a numeric suffix."
+      },
+      "images": {
+        "name": "Images",
+        "tooltip": "Images to save in the same order as the filename list."
+      },
+      "output_dir": {
+        "name": "Output directory",
+        "tooltip": "Choose a folder under ComfyUI output. A relative path is resolved from output."
+      }
+    }
+  },
+  "GXSavePathAppend": {
+    "description": "Append an optional date, subfolders, and a filename prefix to a base path.",
+    "display_name": "➕ Save Path Append",
+    "inputs": {
+      "SubfolderMode": {
+        "name": "Folder mode",
+        "options": {
+          "Date": "Date folder",
+          "Default": "Default"
+        }
+      },
+      "SubfolderName1": {
+        "name": "Subfolder 1"
+      },
+      "SubfolderName2": {
+        "name": "Subfolder 2"
+      },
+      "base_path": {
+        "name": "Base path"
+      },
+      "filename_prefix": {
+        "name": "Filename prefix"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Save path"
+      }
+    }
+  },
+  "GXSavePathCombiner": {
+    "description": "Build a save path from optional date and folder segments.",
+    "display_name": "📂 Save Path Combiner",
+    "inputs": {
+      "SubfolderMode": {
+        "name": "Folder mode",
+        "options": {
+          "Date": "Date folder",
+          "Default": "Default"
+        }
+      },
+      "SubfolderName1": {
+        "name": "Subfolder 1"
+      },
+      "SubfolderName2": {
+        "name": "Subfolder 2"
+      },
+      "filename_prefix": {
+        "name": "Filename prefix"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Save path"
+      }
+    }
+  },
+  "GXSaveVideo": {
+    "description": "Save a video with the selected container, codec, and quality.",
+    "display_name": "GX Save Video",
+    "inputs": {
+      "codec": {
+        "name": "Codec",
+        "options": {
+          "auto": "Automatic"
+        }
+      },
+      "crf": {
+        "name": "Quality (CRF)"
+      },
+      "filename_prefix": {
+        "name": "Filename prefix"
+      },
+      "format": {
+        "name": "Container",
+        "options": {
+          "auto": "Automatic"
+        }
+      },
+      "video": {
+        "name": "Video"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Video"
+      }
+    }
+  },
+  "GXSharedLoadAudio": {
+    "description": "Load a downloaded audio result from shared compute.",
+    "display_name": "GX Shared Load Audio",
+    "inputs": {
+      "result": {
+        "name": "Shared result"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Audio"
+      }
+    }
+  },
+  "GXSharedLoadImage": {
+    "description": "Load a downloaded image result and its mask from shared compute.",
+    "display_name": "GX Shared Load Image",
+    "inputs": {
+      "result": {
+        "name": "Shared result"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Image"
+      },
+      "1": {
+        "name": "Mask"
+      }
+    }
+  },
+  "GXSharedLoadVideo": {
+    "description": "Load a downloaded video result from shared compute.",
+    "display_name": "GX Shared Load Video",
+    "inputs": {
+      "result": {
+        "name": "Shared result"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Video"
+      }
+    }
+  },
+  "GXShowTextAndUnescapeUnicode": {
+    "description": "Decode Unicode escapes and show the resulting text on the node.",
+    "display_name": "📃 Show Text and Unescape Unicode",
+    "inputs": {
+      "text": {
+        "name": "Text"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Text"
+      }
+    }
+  },
+  "GXSkillCatalog": {
+    "description": "List the names and descriptions of local skills. Refreshes when the directory changes.",
+    "display_name": "GX Skill Catalog",
+    "inputs": {
+      "skill_folder": {
+        "name": "Skill directory"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Skill list"
+      }
+    }
+  },
+  "GXSkillConfig": {
+    "description": "Choose skills in the order they should be applied.",
+    "display_name": "GX Skill Config",
+    "inputs": {
+      "skill_folder": {
+        "name": "Skill directory",
+        "tooltip": "Leave empty to use .comfypilot/agents/skills, or enter a local directory."
+      },
+      "skills": {
+        "name": "Selected skills",
+        "tooltip": "One skill per line, followed by optional resource paths separated with vertical bars. Use GX Skill Catalog to list available names."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Skill context"
+      }
+    }
+  },
+  "GXStringLiteral": {
+    "description": "Provide an editable multiline string.",
+    "display_name": "📃 String Literal",
+    "inputs": {
+      "String": {
+        "name": "Text"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Text"
+      }
+    }
+  },
+  "GXVideoReverse": {
+    "description": "Reverse the order of a frame batch and report its duration at the selected frame rate.",
+    "display_name": "📽️ Video Reverse",
+    "inputs": {
+      "FPS": {
+        "name": "Frame rate"
+      },
+      "images": {
+        "name": "Frames"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "Reversed frames"
+      },
+      "1": {
+        "name": "Frame count"
+      },
+      "2": {
+        "name": "Duration (seconds)"
+      }
+    }
+  },
+  "GX_TopazFrameInterpolation": {
+    "display_name": "GX Topaz Video AI Frame Interpolation",
+    "description": "Interpolate video to a target frame rate or create slow motion. Image dimensions stay the same. Supports Topaz Video AI 6.2.1. Configure the Topaz FFmpeg path under Settings > GXNodes > Topaz Video AI.",
+    "inputs": {
+      "fi_fps": {
+        "name": "Output frame rate",
+        "tooltip": "Target output frame rate, such as 30 or 60 fps. 0 leaves the frame-rate option unset. Frame interpolation alone keeps the original image size."
+      },
+      "fi_model": {
+        "name": "Interpolation model",
+        "options": {
+          "Chronos Fast · 快速补帧 (chf-3)": "Chronos Fast",
+          "Chronos · 质量优先补帧 (chr-2)": "Chronos",
+          "Apollo": "Apollo"
+        },
+        "tooltip": "Choose Chronos Fast for speed, Chronos for quality, or Apollo for non-linear motion. Model availability depends on the installed Topaz Video AI version."
+      },
+      "fi_rdt": {
+        "name": "Duplicate frame sensitivity",
+        "tooltip": "Controls duplicate-frame detection. Higher values treat more similar frames as duplicates. Start with the default and increase gradually."
+      },
+      "fi_slowmo": {
+        "name": "Slow motion",
+        "tooltip": "1 keeps the original speed. Larger values create slow motion, such as 2 for half speed. Audio is copied at its original speed."
+      },
+      "frames": {
+        "name": "images",
+        "tooltip": "Video frames as an IMAGE batch. Connect the images output of your video loader."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "images",
+        "tooltip": "Processed video frames. The default decode limit is the first 512 frames."
+      },
+      "1": {
+        "name": "video path",
+        "tooltip": "Absolute path to the complete processed video file on this ComfyUI host."
+      }
+    }
+  },
+  "GX_TopazEnhancement": {
+    "display_name": "GX Topaz Video AI Enhancement",
+    "description": "Enhance video with Rhea or Proteus and set the output size. Supports Topaz Video AI 6.2.1. Configure the Topaz FFmpeg path under Settings > GXNodes > Topaz Video AI.",
+    "inputs": {
+      "frames": {
+        "name": "images",
+        "tooltip": "Video frames as an IMAGE batch. Connect the images output of your video loader."
+      },
+      "up_blend": {
+        "name": "Blend",
+        "tooltip": "Mixes original source detail back into the enhanced result. 0 uses the enhanced result; 1 mixes in the most original detail. Available with Proteus."
+      },
+      "up_blur": {
+        "name": "Deblur",
+        "tooltip": "Adjusts deblurring strength. Higher values may sharpen soft detail but can also introduce artifacts."
+      },
+      "up_compression": {
+        "name": "Revert compression",
+        "tooltip": "Reduces compression artifacts such as blocks and ringing. Increase gradually for low-bitrate footage."
+      },
+      "up_details": {
+        "name": "Recover detail",
+        "tooltip": "Adjusts recovery of fine texture. Increase gradually; excessive values may introduce artificial detail."
+      },
+      "up_halo": {
+        "name": "Dehalo",
+        "tooltip": "Reduces bright or dark halos around edges. Excessive correction can soften edges."
+      },
+      "up_height": {
+        "name": "Output height",
+        "tooltip": "Output height in pixels when Scale is 0. Use an even number. 1280 x 720 to 2560 x 1440 doubles both dimensions."
+      },
+      "up_model": {
+        "name": "Enhancement model",
+        "options": {
+          "Rhea · 通用放大/画质增强 (rhea-1)": "Rhea",
+          "Proteus · 细节修复/去压缩 (prob-4)": "Proteus"
+        },
+        "tooltip": "Rhea provides general enhancement and upscaling. Proteus provides adjustable restoration controls. Available controls depend on the model."
+      },
+      "up_noise": {
+        "name": "Reduce noise",
+        "tooltip": "Reduces existing image noise. Higher values can remove more noise and fine texture. This is separate from Add Noise."
+      },
+      "up_preblur": {
+        "name": "Preblur",
+        "tooltip": "Adjusts pre-processing blur. Increase gradually to soften noise or artifacts before enhancement; too much can remove detail."
+      },
+      "up_scale": {
+        "name": "Scale",
+        "tooltip": "0 uses Output width and Output height. A positive value requests a model scale factor. Support depends on the selected model."
+      },
+      "up_width": {
+        "name": "Output width",
+        "tooltip": "Output width in pixels when Scale is 0. Use an even number. Set width and height in the source aspect ratio to avoid stretching."
+      },
+      "up_add_noise": {
+        "name": "Add Noise",
+        "tooltip": "Adds a small amount of noise to reduce an overly smooth appearance. 0 disables it. Uses the Topaz Video AI Add Noise slider scale, from 0 to 10."
+      },
+      "up_model_up_blend": {
+        "name": "Blend",
+        "tooltip": "Mixes original source detail back into the enhanced result. 0 uses the enhanced result; 1 mixes in the most original detail. Available with Proteus."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "images",
+        "tooltip": "Processed video frames. The default decode limit is the first 512 frames."
+      },
+      "1": {
+        "name": "video path",
+        "tooltip": "Absolute path to the complete processed video file on this ComfyUI host."
+      }
+    }
+  },
+  "GX_TopazVideoAI": {
+    "display_name": "GX Topaz Video AI Frame Interpolation + Enhancement",
+    "description": "Apply frame interpolation and enhancement in one processing pass. Supports Topaz Video AI 6.2.1. Configure the Topaz FFmpeg path under Settings > GXNodes > Topaz Video AI.",
+    "inputs": {
+      "fi_fps": {
+        "name": "Output frame rate",
+        "tooltip": "Target output frame rate, such as 30 or 60 fps. 0 leaves the frame-rate option unset. Frame interpolation alone keeps the original image size."
+      },
+      "fi_model": {
+        "name": "Interpolation model",
+        "options": {
+          "Chronos Fast · 快速补帧 (chf-3)": "Chronos Fast",
+          "Chronos · 质量优先补帧 (chr-2)": "Chronos",
+          "Apollo": "Apollo"
+        },
+        "tooltip": "Choose Chronos Fast for speed, Chronos for quality, or Apollo for non-linear motion. Model availability depends on the installed Topaz Video AI version."
+      },
+      "fi_rdt": {
+        "name": "Duplicate frame sensitivity",
+        "tooltip": "Controls duplicate-frame detection. Higher values treat more similar frames as duplicates. Start with the default and increase gradually."
+      },
+      "fi_slowmo": {
+        "name": "Slow motion",
+        "tooltip": "1 keeps the original speed. Larger values create slow motion, such as 2 for half speed. Audio is copied at its original speed."
+      },
+      "frames": {
+        "name": "images",
+        "tooltip": "Video frames as an IMAGE batch. Connect the images output of your video loader."
+      },
+      "up_blend": {
+        "name": "Blend",
+        "tooltip": "Mixes original source detail back into the enhanced result. 0 uses the enhanced result; 1 mixes in the most original detail. Available with Proteus."
+      },
+      "up_blur": {
+        "name": "Deblur",
+        "tooltip": "Adjusts deblurring strength. Higher values may sharpen soft detail but can also introduce artifacts."
+      },
+      "up_compression": {
+        "name": "Revert compression",
+        "tooltip": "Reduces compression artifacts such as blocks and ringing. Increase gradually for low-bitrate footage."
+      },
+      "up_details": {
+        "name": "Recover detail",
+        "tooltip": "Adjusts recovery of fine texture. Increase gradually; excessive values may introduce artificial detail."
+      },
+      "up_halo": {
+        "name": "Dehalo",
+        "tooltip": "Reduces bright or dark halos around edges. Excessive correction can soften edges."
+      },
+      "up_height": {
+        "name": "Output height",
+        "tooltip": "Output height in pixels when Scale is 0. Use an even number. 1280 x 720 to 2560 x 1440 doubles both dimensions."
+      },
+      "up_model": {
+        "name": "Enhancement model",
+        "options": {
+          "Rhea · 通用放大/画质增强 (rhea-1)": "Rhea",
+          "Proteus · 细节修复/去压缩 (prob-4)": "Proteus"
+        },
+        "tooltip": "Rhea provides general enhancement and upscaling. Proteus provides adjustable restoration controls. Available controls depend on the model."
+      },
+      "up_noise": {
+        "name": "Reduce noise",
+        "tooltip": "Reduces existing image noise. Higher values can remove more noise and fine texture. This is separate from Add Noise."
+      },
+      "up_preblur": {
+        "name": "Preblur",
+        "tooltip": "Adjusts pre-processing blur. Increase gradually to soften noise or artifacts before enhancement; too much can remove detail."
+      },
+      "up_scale": {
+        "name": "Scale",
+        "tooltip": "0 uses Output width and Output height. A positive value requests a model scale factor. Support depends on the selected model."
+      },
+      "up_width": {
+        "name": "Output width",
+        "tooltip": "Output width in pixels when Scale is 0. Use an even number. Set width and height in the source aspect ratio to avoid stretching."
+      },
+      "up_add_noise": {
+        "name": "Add Noise",
+        "tooltip": "Adds a small amount of noise to reduce an overly smooth appearance. 0 disables it. Uses the Topaz Video AI Add Noise slider scale, from 0 to 10."
+      },
+      "up_model_up_blend": {
+        "name": "Blend",
+        "tooltip": "Mixes original source detail back into the enhanced result. 0 uses the enhanced result; 1 mixes in the most original detail. Available with Proteus."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "images",
+        "tooltip": "Processed video frames. The default decode limit is the first 512 frames."
+      },
+      "1": {
+        "name": "video path",
+        "tooltip": "Absolute path to the complete processed video file on this ComfyUI host."
+      }
+    }
+  }
+}

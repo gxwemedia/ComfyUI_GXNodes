@@ -1,0 +1,46 @@
+{
+  "GXNodes_ComfyPilot_AllowRemote": {
+    "name": "Allow remote ComfyPilot URLs",
+    "tooltip": "Allow ComfyPilot addresses outside this machine."
+  },
+  "GXNodes_ComfyPilot_Enabled": {
+    "name": "ComfyPilot nodes",
+    "tooltip": "Show ComfyPilot and Agnes nodes in the node library."
+  },
+  "GXNodes_ComfyPilot_Url": {
+    "name": "ComfyPilot service URL",
+    "tooltip": "Default URL for new ComfyPilot connection nodes."
+  },
+  "GXNodes_Enterprise_Mock": {
+    "name": "Enterprise access (demo only)",
+    "tooltip": "This demo provides no enterprise authentication, permissions, or auditing. It does not change LAN sharing."
+  },
+  "GXNodes_SharedCompute_AuthorizeAction": {
+    "name": "Authorize access",
+    "tooltip": "Authorize this page to use sharing on this ComfyUI instance."
+  },
+  "GXNodes_SharedCompute_Enabled": {
+    "name": "Shared Compute",
+    "tooltip": "Show sharing controls and discover LAN peers."
+  },
+  "GXNodes_SharedCompute_ManageTokenAction": {
+    "name": "Manage shared token",
+    "tooltip": "Set or clear the shared token for this instance."
+  },
+  "GXNodes_SharedCompute_ResultRetentionDays": {
+    "name": "Keep results (days)",
+    "tooltip": "Set 0 to keep shared results and task records indefinitely."
+  },
+  "GXNodes_SharedCompute_TransferRetentionHours": {
+    "name": "Keep transfers (hours)",
+    "tooltip": "Set 0 to keep shared files in input and temp indefinitely."
+  },
+  "GXNodes_Topaz_FfmpegPath": {
+    "name": "Topaz FFmpeg path",
+    "tooltip": "Enter the local absolute path. Leave blank to detect it automatically."
+  },
+  "GXNodes_Topaz_SupportedVersion": {
+    "name": "Supported Topaz Video AI version",
+    "tooltip": "Reference version used for the command mappings. This value does not detect the installed application version."
+  }
+}

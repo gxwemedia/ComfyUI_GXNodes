@@ -1,0 +1,372 @@
+{
+  "last_node_id": 23,
+  "last_link_id": 29,
+  "nodes": [
+    {
+      "id": 12,
+      "type": "easy loadImagesForLoop",
+      "pos": [
+        757,
+        302
+      ],
+      "size": [
+        315,
+        226
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "initial_value1",
+          "type": "*",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "initial_value2",
+          "type": "*",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "flow",
+          "type": "FLOW_CONTROL",
+          "links": [
+            11
+          ],
+          "slot_index": 0,
+          "shape": 5
+        },
+        {
+          "name": "index",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            14
+          ],
+          "slot_index": 2
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null,
+          "slot_index": 3
+        },
+        {
+          "name": "name",
+          "type": "STRING",
+          "links": [
+            16
+          ],
+          "slot_index": 4
+        },
+        {
+          "name": "value1",
+          "type": "*",
+          "links": [
+            13
+          ],
+          "slot_index": 5
+        },
+        {
+          "name": "value2",
+          "type": "*",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy loadImagesForLoop"
+      },
+      "widgets_values": [
+        "",
+        0,
+        -1
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 13,
+      "type": "easy forLoopEnd",
+      "pos": [
+        1734,
+        299
+      ],
+      "size": [
+        178,
+        86
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "flow",
+          "type": "FLOW_CONTROL",
+          "link": 11,
+          "shape": 5
+        },
+        {
+          "name": "initial_value1",
+          "type": "*",
+          "link": 15,
+          "shape": 7
+        },
+        {
+          "name": "initial_value2",
+          "type": "*",
+          "link": 18
+        },
+        {
+          "name": "initial_value3",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "value1",
+          "type": "*",
+          "links": [
+            29
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "value2",
+          "type": "*",
+          "links": [
+            28
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "value3",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy forLoopEnd"
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 14,
+      "type": "easy batchAnything",
+      "pos": [
+        1334,
+        400
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "any_1",
+          "type": "*",
+          "link": 13
+        },
+        {
+          "name": "any_2",
+          "type": "*",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "batch",
+          "type": "*",
+          "links": [
+            15
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy batchAnything"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "easy batchAnything",
+      "pos": [
+        1335,
+        517
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "any_1",
+          "type": "*",
+          "link": 17
+        },
+        {
+          "name": "any_2",
+          "type": "*",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "batch",
+          "type": "*",
+          "links": [
+            18
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy batchAnything"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 23,
+      "type": "GXSaveImagesByName",
+      "pos": [
+        2027,
+        297
+      ],
+      "size": [
+        587.839599609375,
+        290
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 29
+        },
+        {
+          "name": "filenames",
+          "type": "STRING",
+          "link": 28,
+          "widget": {
+            "name": "filenames"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "GXSaveImagesByName"
+      },
+      "widgets_values": [
+        "",
+        ""
+      ]
+    }
+  ],
+  "links": [
+    [
+      11,
+      12,
+      0,
+      13,
+      0,
+      "FLOW_CONTROL"
+    ],
+    [
+      13,
+      12,
+      5,
+      14,
+      0,
+      "*"
+    ],
+    [
+      14,
+      12,
+      2,
+      14,
+      1,
+      "*"
+    ],
+    [
+      15,
+      14,
+      0,
+      13,
+      1,
+      "*"
+    ],
+    [
+      16,
+      12,
+      4,
+      15,
+      1,
+      "*"
+    ],
+    [
+      17,
+      12,
+      6,
+      15,
+      0,
+      "*"
+    ],
+    [
+      18,
+      15,
+      0,
+      13,
+      2,
+      "*"
+    ],
+    [
+      28,
+      13,
+      1,
+      23,
+      1,
+      "STRING"
+    ],
+    [
+      29,
+      13,
+      0,
+      23,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.2839025177495016,
+      "offset": [
+        -659.8058046090406,
+        107.13300840493422
+      ]
+    }
+  },
+  "version": 0.4
+}

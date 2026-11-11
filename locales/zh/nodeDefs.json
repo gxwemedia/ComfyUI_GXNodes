@@ -1,0 +1,869 @@
+{
+  "GXAPIConfig": {
+    "description": "选择本地配置，或配置兼容 OpenAI 的 API。",
+    "display_name": "GX API 配置",
+    "inputs": {
+      "source": {
+        "name": "配置来源",
+        "options": {
+          "custom": "自定义 API",
+          "dsh": "本地配置"
+        }
+      },
+      "source_api_key_env": {
+        "name": "API Key 环境变量"
+      },
+      "source_base_url": {
+        "name": "API 地址"
+      },
+      "source_dsh_model": {
+        "name": "本地模型"
+      },
+      "source_model": {
+        "name": "模型名称"
+      },
+      "timeout_seconds": {
+        "name": "超时（秒）"
+      },
+      "vision": {
+        "name": "视觉输入",
+        "options": {
+          "auto": "自动",
+          "disabled": "禁用",
+          "enabled": "启用"
+        }
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "API 配置"
+      }
+    }
+  },
+  "GXAgnesImage": {
+    "description": "通过 Agnes 生成图像，可提供最多四张参考图。",
+    "display_name": "GX Agnes 图像",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot 连接"
+      },
+      "image": {
+        "name": "参考图 1"
+      },
+      "image_2": {
+        "name": "参考图 2"
+      },
+      "image_3": {
+        "name": "参考图 3"
+      },
+      "image_4": {
+        "name": "参考图 4"
+      },
+      "prompt": {
+        "name": "提示词"
+      },
+      "ratio": {
+        "name": "宽高比"
+      },
+      "size": {
+        "name": "分辨率"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "图像"
+      }
+    }
+  },
+  "GXAgnesText": {
+    "description": "通过 Agnes 生成文本，可提供系统提示词和图像。",
+    "display_name": "GX Agnes 文本",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot 连接"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "prompt": {
+        "name": "提示词"
+      },
+      "system_prompt": {
+        "name": "系统提示词"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "文本"
+      }
+    }
+  },
+  "GXAgnesVideo": {
+    "description": "通过 Agnes 从文本、图像或首尾帧生成视频。",
+    "display_name": "GX Agnes 视频",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot 连接"
+      },
+      "first_frame": {
+        "name": "首帧"
+      },
+      "frame_rate": {
+        "name": "帧率"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "last_frame": {
+        "name": "尾帧"
+      },
+      "mode": {
+        "name": "生成模式",
+        "options": {
+          "image-to-video": "图生视频",
+          "keyframe-video": "首尾帧视频",
+          "text-to-video": "文生视频"
+        }
+      },
+      "negative_prompt": {
+        "name": "负面提示词"
+      },
+      "num_frames": {
+        "name": "帧数"
+      },
+      "prompt": {
+        "name": "提示词"
+      },
+      "ratio": {
+        "name": "宽高比"
+      },
+      "seed": {
+        "name": "种子"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "视频"
+      }
+    }
+  },
+  "GXComfyPilotConnection": {
+    "description": "为 ComfyPilot 和 Agnes 节点提供服务地址。",
+    "display_name": "GX ComfyPilot 连接",
+    "inputs": {
+      "base_url": {
+        "name": "服务地址"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "ComfyPilot 连接"
+      }
+    }
+  },
+  "GXComfyPilotText": {
+    "description": "使用 ComfyPilot 服务中的提供商和模型生成文本。",
+    "display_name": "GX ComfyPilot 文本",
+    "inputs": {
+      "comfypilot": {
+        "name": "ComfyPilot 连接"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "prompt": {
+        "name": "提示词"
+      },
+      "provider_model": {
+        "name": "提供商与模型",
+        "options": {
+          "auto": "自动"
+        }
+      },
+      "system_prompt": {
+        "name": "系统提示词"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "文本"
+      }
+    }
+  },
+  "GXGenerationConfig": {
+    "description": "连接 API 配置，为对应协议选择生成设置。",
+    "display_name": "GX 生成配置",
+    "inputs": {
+      "api_config": {
+        "name": "API 配置"
+      },
+      "settings": {
+        "name": "生成预设",
+        "options": {
+          "default": "默认",
+          "openai-completions": "OpenAI 聊天补全"
+        }
+      },
+      "settings_advanced_extra_body": {
+        "name": "扩展请求参数（JSON）"
+      },
+      "settings_api_seed_mode": {
+        "name": "发送模型种子",
+        "options": {
+          "off": "关闭",
+          "use_execution_seed": "使用执行种子"
+        },
+        "tooltip": "仅在兼容 OpenAI 的服务支持时发送执行种子。"
+      },
+      "settings_frequency_penalty": {
+        "name": "词频重复惩罚"
+      },
+      "settings_max_tokens": {
+        "name": "最大输出 token"
+      },
+      "settings_presence_penalty": {
+        "name": "话题重复惩罚"
+      },
+      "settings_reasoning_effort": {
+        "name": "推理强度",
+        "options": {
+          "default": "默认",
+          "high": "高",
+          "low": "低",
+          "medium": "中",
+          "minimal": "最低",
+          "none": "无",
+          "xhigh": "很高"
+        }
+      },
+      "settings_response_format": {
+        "name": "响应格式",
+        "options": {
+          "default": "默认",
+          "json_object": "JSON 对象",
+          "text": "文本"
+        }
+      },
+      "settings_stop": {
+        "name": "停止词（每行一个）"
+      },
+      "settings_temperature": {
+        "name": "随机程度"
+      },
+      "settings_token_field": {
+        "name": "输出上限字段"
+      },
+      "settings_top_p": {
+        "name": "采样范围（top_p）"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "请求配置"
+      }
+    }
+  },
+  "GXHighPassSharpening": {
+    "description": "用高通滤波锐化边缘，可调整混合方式和强度。",
+    "display_name": "🖼️ 高反差锐化",
+    "inputs": {
+      "blend_mode": {
+        "name": "混合模式",
+        "options": {
+          "hard_light": "强光",
+          "soft_light": "柔光"
+        }
+      },
+      "image": {
+        "name": "图像"
+      },
+      "intensity": {
+        "name": "强度"
+      },
+      "opacity": {
+        "name": "不透明度"
+      },
+      "radius": {
+        "name": "半径"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "图像"
+      }
+    }
+  },
+  "GXLLMChatCompletions": {
+    "description": "连接 GX 生成配置后，可发送文本、技能和媒体。",
+    "display_name": "GX LLM 聊天补全",
+    "inputs": {
+      "context": {
+        "name": "补充上下文"
+      },
+      "execution_seed": {
+        "name": "执行种子",
+        "tooltip": "递增可重新请求，固定值可复用缓存。仅在请求配置允许时发送给模型。"
+      },
+      "image1": {
+        "name": "图片 1"
+      },
+      "image2": {
+        "name": "图片 2"
+      },
+      "image3": {
+        "name": "图片 3"
+      },
+      "image4": {
+        "name": "图片 4"
+      },
+      "image5": {
+        "name": "图片 5"
+      },
+      "image6": {
+        "name": "图片 6"
+      },
+      "image7": {
+        "name": "图片 7"
+      },
+      "image8": {
+        "name": "图片 8"
+      },
+      "prompt": {
+        "name": "提示词"
+      },
+      "request_config": {
+        "name": "请求配置"
+      },
+      "skill_context": {
+        "name": "技能上下文"
+      },
+      "system": {
+        "name": "角色指令"
+      },
+      "video": {
+        "name": "视频"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "回答文本"
+      },
+      "1": {
+        "name": "请求信息"
+      }
+    }
+  },
+  "GXOutpaintingSize": {
+    "description": "根据目标尺寸和偏移计算图像四边的扩展量。",
+    "display_name": "🔍 扩图尺寸",
+    "inputs": {
+      "Height": {
+        "name": "目标高度"
+      },
+      "Horizontal_Offset": {
+        "name": "水平偏移"
+      },
+      "Image": {
+        "name": "图像"
+      },
+      "Vertical_Offset": {
+        "name": "垂直偏移"
+      },
+      "Width": {
+        "name": "目标宽度"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "图像"
+      },
+      "1": {
+        "name": "左侧"
+      },
+      "2": {
+        "name": "顶部"
+      },
+      "3": {
+        "name": "右侧"
+      },
+      "4": {
+        "name": "底部"
+      }
+    }
+  },
+  "GXSaveImagePlus": {
+    "description": "保存图像，支持日期目录、双层子文件夹和 PNG 元数据。",
+    "display_name": "增强图像保存",
+    "inputs": {
+      "SaveMode": {
+        "name": "保存模式",
+        "options": {
+          "Date": "日期文件夹",
+          "Default": "默认"
+        }
+      },
+      "SubfolderName1": {
+        "name": "一级子文件夹"
+      },
+      "SubfolderName2": {
+        "name": "二级子文件夹"
+      },
+      "filename_prefix": {
+        "name": "文件名前缀"
+      },
+      "images": {
+        "name": "图像"
+      }
+    }
+  },
+  "GXSaveImagesByName": {
+    "description": "按清单为每张图像指定文件名，保存到 ComfyUI 的输出目录下。",
+    "display_name": "GX 按名称保存图像",
+    "inputs": {
+      "filenames": {
+        "name": "文件名",
+        "tooltip": "每张图对应一个文件名，也可接入循环生成的列表。文件名不含目录分隔符，重名文件会加数字后缀。"
+      },
+      "images": {
+        "name": "图像",
+        "tooltip": "按文件名清单的顺序输入图像。"
+      },
+      "output_dir": {
+        "name": "输出目录",
+        "tooltip": "指定 ComfyUI output 下的目录。相对路径从 output 起算。"
+      }
+    }
+  },
+  "GXSavePathAppend": {
+    "description": "在基础路径后追加可选日期、子文件夹和文件名前缀。",
+    "display_name": "➕ 追加保存路径",
+    "inputs": {
+      "SubfolderMode": {
+        "name": "目录模式",
+        "options": {
+          "Date": "日期文件夹",
+          "Default": "默认"
+        }
+      },
+      "SubfolderName1": {
+        "name": "一级子文件夹"
+      },
+      "SubfolderName2": {
+        "name": "二级子文件夹"
+      },
+      "base_path": {
+        "name": "基础路径"
+      },
+      "filename_prefix": {
+        "name": "文件名前缀"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "保存路径"
+      }
+    }
+  },
+  "GXSavePathCombiner": {
+    "description": "用可选日期和子文件夹组合保存路径。",
+    "display_name": "📂 组合保存路径",
+    "inputs": {
+      "SubfolderMode": {
+        "name": "目录模式",
+        "options": {
+          "Date": "日期文件夹",
+          "Default": "默认"
+        }
+      },
+      "SubfolderName1": {
+        "name": "一级子文件夹"
+      },
+      "SubfolderName2": {
+        "name": "二级子文件夹"
+      },
+      "filename_prefix": {
+        "name": "文件名前缀"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "保存路径"
+      }
+    }
+  },
+  "GXSaveVideo": {
+    "description": "按所选封装格式、编码和质量保存视频。",
+    "display_name": "GX 保存视频",
+    "inputs": {
+      "codec": {
+        "name": "编码",
+        "options": {
+          "auto": "自动"
+        }
+      },
+      "crf": {
+        "name": "质量（CRF）"
+      },
+      "filename_prefix": {
+        "name": "文件名前缀"
+      },
+      "format": {
+        "name": "封装格式",
+        "options": {
+          "auto": "自动"
+        }
+      },
+      "video": {
+        "name": "视频"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "视频"
+      }
+    }
+  },
+  "GXSharedLoadAudio": {
+    "description": "加载共享算力已取回的音频结果。",
+    "display_name": "GX 加载共享音频",
+    "inputs": {
+      "result": {
+        "name": "共享结果"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "音频"
+      }
+    }
+  },
+  "GXSharedLoadImage": {
+    "description": "加载共享算力已取回的图像结果及其遮罩。",
+    "display_name": "GX 加载共享图像",
+    "inputs": {
+      "result": {
+        "name": "共享结果"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "图像"
+      },
+      "1": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "GXSharedLoadVideo": {
+    "description": "加载共享算力已取回的视频结果。",
+    "display_name": "GX 加载共享视频",
+    "inputs": {
+      "result": {
+        "name": "共享结果"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "视频"
+      }
+    }
+  },
+  "GXShowTextAndUnescapeUnicode": {
+    "description": "解析 Unicode 转义并在节点上显示结果。",
+    "display_name": "📃 显示文本与解析 Unicode 转义",
+    "inputs": {
+      "text": {
+        "name": "文本"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "文本"
+      }
+    }
+  },
+  "GXSkillCatalog": {
+    "description": "列出本机技能的名称和说明，目录变化时自动刷新。",
+    "display_name": "GX 技能目录",
+    "inputs": {
+      "skill_folder": {
+        "name": "技能目录"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "技能列表"
+      }
+    }
+  },
+  "GXSkillConfig": {
+    "description": "选择所需技能并安排使用顺序。",
+    "display_name": "GX 技能配置",
+    "inputs": {
+      "skill_folder": {
+        "name": "技能目录",
+        "tooltip": "留空使用 .comfypilot/agents/skills，也可填写本机目录。"
+      },
+      "skills": {
+        "name": "已选技能",
+        "tooltip": "每行填写一个技能名，可用半角竖线分隔附加资源路径。使用 GX 技能目录查看可选名称。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "技能上下文"
+      }
+    }
+  },
+  "GXStringLiteral": {
+    "description": "提供可编辑的多行文本常量。",
+    "display_name": "📃 文本常量",
+    "inputs": {
+      "String": {
+        "name": "文本"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "文本"
+      }
+    }
+  },
+  "GXVideoReverse": {
+    "description": "反转图像帧顺序，并按所选帧率计算时长。",
+    "display_name": "📽️ 视频倒放",
+    "inputs": {
+      "FPS": {
+        "name": "帧率"
+      },
+      "images": {
+        "name": "图像帧"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "倒序帧"
+      },
+      "1": {
+        "name": "帧数"
+      },
+      "2": {
+        "name": "时长（秒）"
+      }
+    }
+  },
+  "GX_TopazFrameInterpolation": {
+    "display_name": "GX Topaz Video AI 补帧",
+    "description": "按目标帧率补帧或生成慢动作，保持原图像尺寸。支持 Topaz Video AI 6.2.1。可在设置 → GXNodes → Topaz Video AI 中配置 Topaz FFmpeg 路径。",
+    "inputs": {
+      "fi_fps": {
+        "name": "输出帧率",
+        "tooltip": "目标输出帧率，例如 30 或 60 fps。0 表示不指定目标帧率。单独补帧保持原图像尺寸。"
+      },
+      "fi_model": {
+        "name": "补帧模型",
+        "options": {
+          "Chronos Fast · 快速补帧 (chf-3)": "Chronos Fast",
+          "Chronos · 质量优先补帧 (chr-2)": "Chronos",
+          "Apollo": "Apollo"
+        },
+        "tooltip": "选择补帧模型。Chronos Fast 偏重速度，Chronos 偏重质量，Apollo 适合复杂运动。可用模型取决于已安装的 Topaz Video AI 版本。"
+      },
+      "fi_rdt": {
+        "name": "重复帧灵敏度",
+        "tooltip": "控制重复帧检测。值越高，越容易把相似画面判为重复帧。建议从默认值开始逐步调整。"
+      },
+      "fi_slowmo": {
+        "name": "慢动作倍率",
+        "tooltip": "1 保持原速，2 表示二倍慢动作，以此类推。音轨仍按原速复制，请另行处理慢动作的声音。"
+      },
+      "frames": {
+        "name": "images",
+        "tooltip": "连接视频加载节点的 images 输出，输入整段视频的图像帧。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "images",
+        "tooltip": "处理后的图像帧序列。默认最多解码前 512 帧。"
+      },
+      "1": {
+        "name": "video path",
+        "tooltip": "当前 ComfyUI 主机上完整处理结果的视频文件绝对路径。"
+      }
+    }
+  },
+  "GX_TopazEnhancement": {
+    "display_name": "GX Topaz Video AI 放大增强",
+    "description": "使用 Rhea 或 Proteus 增强画质，并指定输出尺寸。支持 Topaz Video AI 6.2.1。可在设置 → GXNodes → Topaz Video AI 中配置 Topaz FFmpeg 路径。",
+    "inputs": {
+      "frames": {
+        "name": "images",
+        "tooltip": "连接视频加载节点的 images 输出，输入整段视频的图像帧。"
+      },
+      "up_blend": {
+        "name": "混合比例",
+        "tooltip": "将原片细节混回增强结果。0 使用增强结果，1 混入最多的原片细节。此项在 Proteus 模型下显示。"
+      },
+      "up_blur": {
+        "name": "去模糊",
+        "tooltip": "调整去模糊强度。提高可使柔软的细节更清晰，也可能引入伪影。"
+      },
+      "up_compression": {
+        "name": "减少压缩伪影",
+        "tooltip": "减少压缩造成的色块、振铃等伪影。低码率素材可逐步提高。"
+      },
+      "up_details": {
+        "name": "恢复细节",
+        "tooltip": "调整细小纹理的恢复强度。建议逐步增加，过高可能产生不自然的细节。"
+      },
+      "up_halo": {
+        "name": "去光晕",
+        "tooltip": "减少边缘周围的亮圈或暗圈。过强可能使边缘变软。"
+      },
+      "up_height": {
+        "name": "输出高度",
+        "tooltip": "缩放倍数为 0 时使用的输出高度，单位为像素，须为偶数。1280×720 变为 2560×1440，表示宽和高各放大两倍。"
+      },
+      "up_model": {
+        "name": "增强模型",
+        "options": {
+          "Rhea · 通用放大/画质增强 (rhea-1)": "Rhea",
+          "Proteus · 细节修复/去压缩 (prob-4)": "Proteus"
+        },
+        "tooltip": "Rhea 用于通用增强和放大，Proteus 提供可调节的画质修复。不同模型支持的控制项有所区别。"
+      },
+      "up_noise": {
+        "name": "降噪",
+        "tooltip": "减少画面已有的噪点。较高值会加强降噪，也可能抹去细小纹理。此项与添加噪声分开控制。"
+      },
+      "up_preblur": {
+        "name": "预模糊",
+        "tooltip": "调整增强前的预模糊。逐步增加可柔化噪点或伪影，过高会损失细节。"
+      },
+      "up_scale": {
+        "name": "缩放倍数",
+        "tooltip": "0 表示按输出宽度和高度处理。正数表示向模型指定缩放倍数，支持情况取决于所选模型。"
+      },
+      "up_width": {
+        "name": "输出宽度",
+        "tooltip": "缩放倍数为 0 时使用的输出宽度，单位为像素，须为偶数。宽高应保持原片比例，以免拉伸。"
+      },
+      "up_add_noise": {
+        "name": "添加噪声",
+        "tooltip": "添加少量噪声，减轻过度平滑的观感。0 关闭，范围为 0～10，沿用 Topaz Video AI 的添加噪声滑块刻度。"
+      },
+      "up_model_up_blend": {
+        "name": "混合比例",
+        "tooltip": "将原片细节混回增强结果。0 使用增强结果，1 混入最多的原片细节。此项在 Proteus 模型下显示。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "images",
+        "tooltip": "处理后的图像帧序列。默认最多解码前 512 帧。"
+      },
+      "1": {
+        "name": "video path",
+        "tooltip": "当前 ComfyUI 主机上完整处理结果的视频文件绝对路径。"
+      }
+    }
+  },
+  "GX_TopazVideoAI": {
+    "display_name": "GX Topaz Video AI 补帧 + 放大增强",
+    "description": "在同一次处理中完成补帧、画质增强和尺寸调整。支持 Topaz Video AI 6.2.1。可在设置 → GXNodes → Topaz Video AI 中配置 Topaz FFmpeg 路径。",
+    "inputs": {
+      "fi_fps": {
+        "name": "输出帧率",
+        "tooltip": "目标输出帧率，例如 30 或 60 fps。0 表示不指定目标帧率。单独补帧保持原图像尺寸。"
+      },
+      "fi_model": {
+        "name": "补帧模型",
+        "options": {
+          "Chronos Fast · 快速补帧 (chf-3)": "Chronos Fast",
+          "Chronos · 质量优先补帧 (chr-2)": "Chronos",
+          "Apollo": "Apollo"
+        },
+        "tooltip": "选择补帧模型。Chronos Fast 偏重速度，Chronos 偏重质量，Apollo 适合复杂运动。可用模型取决于已安装的 Topaz Video AI 版本。"
+      },
+      "fi_rdt": {
+        "name": "重复帧灵敏度",
+        "tooltip": "控制重复帧检测。值越高，越容易把相似画面判为重复帧。建议从默认值开始逐步调整。"
+      },
+      "fi_slowmo": {
+        "name": "慢动作倍率",
+        "tooltip": "1 保持原速，2 表示二倍慢动作，以此类推。音轨仍按原速复制，请另行处理慢动作的声音。"
+      },
+      "frames": {
+        "name": "images",
+        "tooltip": "连接视频加载节点的 images 输出，输入整段视频的图像帧。"
+      },
+      "up_blend": {
+        "name": "混合比例",
+        "tooltip": "将原片细节混回增强结果。0 使用增强结果，1 混入最多的原片细节。此项在 Proteus 模型下显示。"
+      },
+      "up_blur": {
+        "name": "去模糊",
+        "tooltip": "调整去模糊强度。提高可使柔软的细节更清晰，也可能引入伪影。"
+      },
+      "up_compression": {
+        "name": "减少压缩伪影",
+        "tooltip": "减少压缩造成的色块、振铃等伪影。低码率素材可逐步提高。"
+      },
+      "up_details": {
+        "name": "恢复细节",
+        "tooltip": "调整细小纹理的恢复强度。建议逐步增加，过高可能产生不自然的细节。"
+      },
+      "up_halo": {
+        "name": "去光晕",
+        "tooltip": "减少边缘周围的亮圈或暗圈。过强可能使边缘变软。"
+      },
+      "up_height": {
+        "name": "输出高度",
+        "tooltip": "缩放倍数为 0 时使用的输出高度，单位为像素，须为偶数。1280×720 变为 2560×1440，表示宽和高各放大两倍。"
+      },
+      "up_model": {
+        "name": "增强模型",
+        "options": {
+          "Rhea · 通用放大/画质增强 (rhea-1)": "Rhea",
+          "Proteus · 细节修复/去压缩 (prob-4)": "Proteus"
+        },
+        "tooltip": "Rhea 用于通用增强和放大，Proteus 提供可调节的画质修复。不同模型支持的控制项有所区别。"
+      },
+      "up_noise": {
+        "name": "降噪",
+        "tooltip": "减少画面已有的噪点。较高值会加强降噪，也可能抹去细小纹理。此项与添加噪声分开控制。"
+      },
+      "up_preblur": {
+        "name": "预模糊",
+        "tooltip": "调整增强前的预模糊。逐步增加可柔化噪点或伪影，过高会损失细节。"
+      },
+      "up_scale": {
+        "name": "缩放倍数",
+        "tooltip": "0 表示按输出宽度和高度处理。正数表示向模型指定缩放倍数，支持情况取决于所选模型。"
+      },
+      "up_width": {
+        "name": "输出宽度",
+        "tooltip": "缩放倍数为 0 时使用的输出宽度，单位为像素，须为偶数。宽高应保持原片比例，以免拉伸。"
+      },
+      "up_add_noise": {
+        "name": "添加噪声",
+        "tooltip": "添加少量噪声，减轻过度平滑的观感。0 关闭，范围为 0～10，沿用 Topaz Video AI 的添加噪声滑块刻度。"
+      },
+      "up_model_up_blend": {
+        "name": "混合比例",
+        "tooltip": "将原片细节混回增强结果。0 使用增强结果，1 混入最多的原片细节。此项在 Proteus 模型下显示。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "images",
+        "tooltip": "处理后的图像帧序列。默认最多解码前 512 帧。"
+      },
+      "1": {
+        "name": "video path",
+        "tooltip": "当前 ComfyUI 主机上完整处理结果的视频文件绝对路径。"
+      }
+    }
+  }
+}
