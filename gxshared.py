@@ -857,7 +857,8 @@ def _asset_directory(directory_type, job_id):
 
 
 def _reference_for_asset(directory_type, job_id, relative_path):
-    relative = f"GXShared/{job_id}/{relative_path.replace('\\', '/')}"
+    asset_path = relative_path.replace("\\", "/")
+    relative = f"GXShared/{job_id}/{asset_path}"
     return relative if directory_type == "input" else f"{relative} [{directory_type}]"
 
 
