@@ -14,6 +14,6 @@ dependencies = [
 Repository = "https://github.com/gxwemedia/ComfyUI_GXNodes"
 
 [tool.comfy]
-PublisherId = "gxwemedia"
+PublisherId = "gaoxian"
 DisplayName = "GXNodes"
 requires-comfyui = ">=0.44.2"
